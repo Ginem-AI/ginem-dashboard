@@ -164,8 +164,6 @@ export default function AppLayout() {
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
   const [activeLink, setActiveLink] = useState("/");
 
-  // const { getCredential } = useCredential();
-
   const menuItems = [
     { title: "Dashboard", link: "/", icon: <IconMenus.dashboard /> },
 
@@ -175,29 +173,14 @@ export default function AppLayout() {
       icon: <IconMenus.device />,
     },
 
+    {
+      title: "Scheduller",
+      link: "/scheduller",
+      icon: <IconMenus.schedule />,
+    },
+
     { title: "Profile", link: "/my-profile", icon: <IconMenus.profile /> },
   ];
-
-  // if (userCredential !== null) {
-  //   switch (userCredential?.user?.userRole.toUpperCase()) {
-  //     case "ADMIN":
-  //       menuItems.push(...adminMenus);
-  //       break;
-  //     case "SUPERADMIN":
-  //       menuItems.push(...superAdminMenus);
-  //       break;
-  //     default:
-  //       break;
-  //   }
-
-  //   menuItems.push({
-  //     title: "Profile",
-  //     link: "/my-profiles",
-  //     icon: <IconMenus.profile />,
-  //   });
-  // } else {
-  //   console.error("token doesn't exist or invalid");
-  // }
 
   useEffect(() => {
     const saved = localStorage.getItem("activeSidebarLink");

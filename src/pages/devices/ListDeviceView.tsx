@@ -41,6 +41,7 @@ import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import { IDevice } from "../../interfaces/Device";
 
 function NoRowsOverlay({
   title,
@@ -83,13 +84,15 @@ const initialEditFormState = {
 };
 
 export default function ListDeviceView() {
-  const [tableData, setTableData] = useState<any[]>([]);
+  const [tableData, setTableData] = useState<IDevice[]>([]);
+
   const {
     handleGetTableDataRequest,
     handlePostRequest,
     handleRemoveRequest,
     handleUpdateRequest,
   } = useHttp();
+
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -99,6 +102,7 @@ export default function ListDeviceView() {
     pageSize: 25,
     page: 0,
   });
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
@@ -269,14 +273,18 @@ export default function ListDeviceView() {
 
   const handleEditDeviceSubmit = async () => {
     if (!deviceToEdit?.deviceId) return;
+
     setEditFormError(null);
+
     if (!editForm.deviceName?.trim()) {
       setEditFormError("Device name is required.");
       return;
     }
     try {
       setEditSubmitLoading(true);
+
       const deviceMetadata: Record<string, string> = {};
+
       if (editForm.deviceMetadataRoom.trim())
         deviceMetadata.room = editForm.deviceMetadataRoom.trim();
       if (editForm.deviceMetadataVoltage.trim())
@@ -289,10 +297,12 @@ export default function ListDeviceView() {
           editForm.deviceFirmwareVersion.trim() || undefined,
         deviceMetadata,
       };
+
       await handleUpdateRequest({
         path: `/devices/${deviceToEdit.deviceId}`,
         body,
       });
+
       handleCloseEditModal();
       const search = searchParams.get("search") || "";
       getTableData({ search });

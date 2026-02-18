@@ -11,6 +11,7 @@ import BookmarkAddedOutlinedIcon from "@mui/icons-material/BookmarkAddedOutlined
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import SupportAgentOutlinedIcon from "@mui/icons-material/SupportAgentOutlined";
 import QueryStatsOutlinedIcon from "@mui/icons-material/QueryStatsOutlined";
+import AccessAlarmIcon from "@mui/icons-material/AccessAlarm";
 
 export const IconMenus = {
   dashboard: SpaceDashboardOutlinedIcon,
@@ -26,4 +27,5 @@ export const IconMenus = {
   support: SupportAgentOutlinedIcon,
   upload: CollectionsOutlinedIcon,
   screener: QueryStatsOutlinedIcon,
+  schedule: AccessAlarmIcon,
 };
