@@ -100,7 +100,7 @@ export default function ListDeviceView() {
   const [rowCount, setRowCount] = useState(0);
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 25,
-    page: 0,
+    page: 1,
   });
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);

@@ -179,6 +179,18 @@ export default function AppLayout() {
       icon: <IconMenus.schedule />,
     },
 
+    {
+      title: "Logger",
+      link: "/logger",
+      icon: <IconMenus.logger />,
+    },
+
+    {
+      title: "Admin",
+      link: "/admin",
+      icon: <IconMenus.admin />,
+    },
+
     { title: "Profile", link: "/my-profile", icon: <IconMenus.profile /> },
   ];
 

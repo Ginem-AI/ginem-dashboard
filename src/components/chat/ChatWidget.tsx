@@ -98,7 +98,7 @@ export function ChatWidget() {
     <Box
       sx={{
         position: "fixed",
-        bottom: { xs: 12, md: 20 },
+        bottom: { xs: 5, md: 8 },
         left: "50%",
         transform: "translateX(-50%)",
         zIndex: (theme) => theme.zIndex.tooltip + 10,
@@ -162,7 +162,7 @@ export function ChatWidget() {
                     color: "text.secondary",
                   }}
                 >
-                  Ask Neuro AI
+                  Ask Ginem
                 </Typography>
                 <Typography
                   variant="body2"
@@ -174,7 +174,7 @@ export function ChatWidget() {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  Tanyakan pasar kripto Anda
+                  Tanyakan apa pun tentang Ginem
                 </Typography>
               </Box>
 
@@ -240,7 +240,7 @@ export function ChatWidget() {
                       Chat Support
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      Tanyakan apa pun tentang Neuro AI
+                      Tanyakan apa pun tentang Ginem
                     </Typography>
                   </Box>
                 </Stack>

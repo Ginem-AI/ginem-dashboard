@@ -26,6 +26,6 @@ export const IconMenus = {
   settings: SettingsOutlinedIcon,
   support: SupportAgentOutlinedIcon,
   upload: CollectionsOutlinedIcon,
-  screener: QueryStatsOutlinedIcon,
+  logger: QueryStatsOutlinedIcon,
   schedule: AccessAlarmIcon,
 };

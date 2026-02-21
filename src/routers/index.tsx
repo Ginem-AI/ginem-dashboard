@@ -11,6 +11,7 @@ import { useToken } from "../hooks/token";
 import ListDeviceView from "../pages/devices/ListDeviceView";
 import DetailDeviceView from "../pages/devices/DetailDeviceView";
 import ListSchedulerView from "../pages/scheduler/ListSchedulerView";
+import ListLoggerView from "../pages/logger/ListLoggerView";
 
 export default function AppRouters() {
   const routers: { path: string; element: JSX.Element }[] = [];
@@ -46,6 +47,10 @@ export default function AppRouters() {
     {
       path: "/scheduller",
       element: <ListSchedulerView />,
+    },
+    {
+      path: "/logger",
+      element: <ListLoggerView />,
     },
 
     //my profile routers

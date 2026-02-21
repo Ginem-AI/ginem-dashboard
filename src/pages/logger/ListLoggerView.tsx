@@ -54,7 +54,7 @@ function NoRowsOverlay({
   );
 }
 
-export default function ListSchedulerView() {
+export default function ListLoggerView() {
   const [tableData, setTableData] = useState<any[]>([]);
   const { handleGetTableDataRequest } = useHttp();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -73,7 +73,7 @@ export default function ListSchedulerView() {
       setLoading(true);
       setErrorMessage(null);
       const result = await handleGetTableDataRequest({
-        path: "/scheduler-logs",
+        path: "/logs",
         page: paginationModel.page,
         size: paginationModel.pageSize,
         filter: { search },
@@ -86,7 +86,7 @@ export default function ListSchedulerView() {
       }
     } catch (error: unknown) {
       console.error(error);
-      setErrorMessage("Failed to load scheduler logs. Please try again.");
+      setErrorMessage("Failed to load logs. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -151,7 +151,7 @@ export default function ListSchedulerView() {
         >
           <TextField
             size="small"
-            placeholder="Search scheduler logs..."
+            placeholder="Search logs..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             InputProps={{
@@ -193,13 +193,14 @@ export default function ListSchedulerView() {
     );
   }
 
-  const getStatusColor = (
-    status: string,
+  const getLevelColor = (
+    level: string,
   ): "default" | "primary" | "success" | "warning" | "error" => {
-    const s = String(status ?? "").toLowerCase();
-    if (s === "completed") return "success";
-    if (s === "pending") return "warning";
-    if (s === "failed" || s === "error") return "error";
+    const s = String(level ?? "").toLowerCase();
+    if (s === "error") return "error";
+    if (s === "warn" || s === "warning") return "warning";
+    if (s === "info") return "primary";
+    if (s === "debug") return "default";
     return "default";
   };
 
@@ -208,9 +209,9 @@ export default function ListSchedulerView() {
       <BreadCrumberStyle
         navigation={[
           {
-            label: "Scheduler",
-            link: "/scheduller",
-            icon: <IconMenus.schedule fontSize="small" />,
+            label: "Logger",
+            link: "/logger",
+            icon: <IconMenus.logger fontSize="small" />,
           },
         ]}
       />
@@ -224,10 +225,10 @@ export default function ListSchedulerView() {
         >
           <Box>
             <Typography variant="h5" fontWeight={800}>
-              Scheduler logs
+              Logs
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Scheduled jobs and execution history
+              Application and request logs
               {lastUpdated ? ` • Updated ${lastUpdated.toLocaleString()}` : ""}
             </Typography>
           </Box>
@@ -246,98 +247,74 @@ export default function ListSchedulerView() {
 
           {(!loading && tableData.length === 0) || rowCount === 0 ? (
             <NoRowsOverlay
-              title="No scheduler logs"
-              subtitle="Try adjusting your search or wait for new scheduled jobs."
+              title="No logs"
+              subtitle="Try adjusting your search or wait for new log entries."
             />
           ) : (
             <TableContainer sx={{ mt: 2 }}>
               <Table size="small" stickyHeader>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 700 }}>Job ID</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Device</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>State</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Delay</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Scheduled at</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Run at</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Executed at</TableCell>
+                    <TableCell sx={{ fontWeight: 700, width: 80 }}>
+                      ID
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 700, width: 100 }}>
+                      Level
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Message</TableCell>
+                    <TableCell sx={{ fontWeight: 700, width: 160 }}>
+                      Created at
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {tableData.map((row: any) => {
-                    const status = String(row?.status ?? "pending");
+                    const level = String(row?.level ?? "info");
+                    const message = row?.message ?? "";
                     return (
                       <TableRow
-                        key={row?.schedulerLogId}
+                        key={row?.logId}
                         hover
                         sx={{
                           "&:last-child td, &:last-child th": { border: 0 },
                         }}
                       >
                         <TableCell>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              maxWidth: 180,
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                            }}
-                            title={row?.jobId}
-                          >
-                            {row?.jobId || "-"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
                           <Typography variant="body2">
-                            {row?.type || "-"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" fontWeight={600}>
-                            {row?.deviceName || "-"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2">
-                            {row?.state ?? "-"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2">
-                            {row?.delayMinutes != null
-                              ? `${row.delayMinutes} min`
-                              : "-"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" color="text.secondary">
-                            {convertTime(row?.scheduledAt) || "-"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" color="text.secondary">
-                            {convertTime(row?.runAt) || "-"}
+                            {row?.logId ?? "—"}
                           </Typography>
                         </TableCell>
                         <TableCell>
                           <Chip
                             size="small"
                             label={
-                              status.charAt(0).toUpperCase() +
-                              status.slice(1).toLowerCase()
+                              level.charAt(0).toUpperCase() +
+                              level.slice(1).toLowerCase()
                             }
-                            color={getStatusColor(status)}
+                            color={getLevelColor(level)}
                             variant="outlined"
                           />
                         </TableCell>
                         <TableCell>
+                          <Tooltip title={message} placement="top-start">
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                maxWidth: 480,
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                                fontFamily: "monospace",
+                                fontSize: "0.75rem",
+                              }}
+                            >
+                              {message || "—"}
+                            </Typography>
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell>
                           <Typography variant="body2" color="text.secondary">
-                            {row?.executedAt
-                              ? convertTime(row.executedAt)
-                              : "—"}
+                            {convertTime(row?.createdAt) || "—"}
                           </Typography>
                         </TableCell>
                       </TableRow>
