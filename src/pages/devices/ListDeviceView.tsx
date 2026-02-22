@@ -4,13 +4,13 @@ import { useHttp } from "../../hooks/http";
 import {
   Alert,
   Button,
-  Chip,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
   FormControl,
+  Grid,
   IconButton,
   InputAdornment,
   InputLabel,
@@ -19,25 +19,19 @@ import {
   Paper,
   Select,
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
 import BreadCrumberStyle from "../../components/breadcrumb/Index";
 import { IconMenus } from "../../components/icon";
+import DeviceCard from "../../components/DeviceCard";
 import { convertTime } from "../../utilities/convertTime";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import CloseIcon from "@mui/icons-material/Close";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -416,15 +410,6 @@ export default function ListDeviceView() {
     );
   }
 
-  const getStatusColor = (
-    status: string,
-  ): "default" | "primary" | "success" | "warning" | "error" => {
-    const s = String(status ?? "").toLowerCase();
-    if (s === "online") return "success";
-    if (s === "offline") return "warning";
-    return "default";
-  };
-
   return (
     <Box sx={{ pb: 2 }}>
       <BreadCrumberStyle
@@ -479,135 +464,24 @@ export default function ListDeviceView() {
               subtitle="Try adjusting your search or add a new device."
             />
           ) : (
-            <TableContainer sx={{ mt: 2 }}>
-              <Table size="small" stickyHeader>
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 700 }}>Name</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Firmware</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Metadata</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Created At</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      Actions
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {tableData.map((row: any) => {
-                    const status = String(row?.deviceStatus ?? "offline");
-                    const metadata = row?.deviceMetadata;
-                    const metadataLabel =
-                      metadata && typeof metadata === "object"
-                        ? Object.entries(metadata)
-                            .map(([k, v]) => `${k}: ${v}`)
-                            .join(", ")
-                        : "-";
-
-                    return (
-                      <TableRow
-                        key={row?.deviceId}
-                        hover
-                        sx={{
-                          "&:last-child td, &:last-child th": { border: 0 },
-                        }}
-                      >
-                        <TableCell>
-                          <Typography variant="body2" fontWeight={600}>
-                            {row?.deviceName || "-"}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {row?.deviceToken || "-"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2">
-                            {row?.deviceType || "-"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            size="small"
-                            label={
-                              status.charAt(0).toUpperCase() +
-                              status.slice(1).toLowerCase()
-                            }
-                            color={getStatusColor(status)}
-                            variant="outlined"
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2">
-                            {row?.deviceFirmwareVersion || "-"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              maxWidth: 180,
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                            }}
-                            title={metadataLabel}
-                          >
-                            {metadataLabel || "-"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" color="text.secondary">
-                            {convertTime(row?.createdAt) || "-"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right">
-                          <Stack
-                            direction="row"
-                            spacing={0.5}
-                            justifyContent="flex-end"
-                          >
-                            <Tooltip title="Detail">
-                              <IconButton
-                                size="small"
-                                onClick={() =>
-                                  navigate(`/devices/${row?.deviceId}`)
-                                }
-                              >
-                                <VisibilityOutlinedIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Update">
-                              <IconButton
-                                size="small"
-                                color="primary"
-                                onClick={() => handleOpenEditModal(row)}
-                              >
-                                <EditOutlinedIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Delete">
-                              <IconButton
-                                size="small"
-                                color="error"
-                                onClick={() =>
-                                  handleOpenDeleteModal(
-                                    row?.deviceId,
-                                    row?.deviceName || "Unknown",
-                                  )
-                                }
-                              >
-                                <DeleteOutlinedIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                          </Stack>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <Grid container spacing={2} sx={{ mt: 2 }}>
+              {tableData.map((row: any) => (
+                <Grid item key={row?.deviceId} xs={12} md={6}>
+                  <DeviceCard
+                    device={row}
+                    convertTime={convertTime}
+                    onDetail={() => navigate(`/devices/${row?.deviceId}`)}
+                    onEdit={() => handleOpenEditModal(row)}
+                    onDelete={() =>
+                      handleOpenDeleteModal(
+                        row?.deviceId,
+                        row?.deviceName || "Unknown",
+                      )
+                    }
+                  />
+                </Grid>
+              ))}
+            </Grid>
           )}
 
           {rowCount > 0 && (

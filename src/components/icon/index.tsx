@@ -12,6 +12,7 @@ import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import SupportAgentOutlinedIcon from "@mui/icons-material/SupportAgentOutlined";
 import QueryStatsOutlinedIcon from "@mui/icons-material/QueryStatsOutlined";
 import AccessAlarmIcon from "@mui/icons-material/AccessAlarm";
+import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
 
 export const IconMenus = {
   dashboard: SpaceDashboardOutlinedIcon,
@@ -28,4 +29,5 @@ export const IconMenus = {
   upload: CollectionsOutlinedIcon,
   logger: QueryStatsOutlinedIcon,
   schedule: AccessAlarmIcon,
+  vectorIndexes: StorageOutlinedIcon,
 };

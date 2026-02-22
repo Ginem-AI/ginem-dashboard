@@ -186,9 +186,21 @@ export default function AppLayout() {
     },
 
     {
+      title: "Embedding",
+      link: "/vector-indexes",
+      icon: <IconMenus.vectorIndexes />,
+    },
+
+    {
       title: "Admin",
       link: "/admin",
       icon: <IconMenus.admin />,
+    },
+
+    {
+      title: "Settings",
+      link: "/settings",
+      icon: <IconMenus.settings />,
     },
 
     { title: "Profile", link: "/my-profile", icon: <IconMenus.profile /> },
