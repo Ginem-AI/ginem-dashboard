@@ -10,17 +10,16 @@ import BreadCrumberStyle from "../../components/breadcrumb/Index";
 import { IconMenus } from "../../components/icon";
 import Alert from "@mui/material/Alert";
 import DeviceHubOutlinedIcon from "@mui/icons-material/DeviceHubOutlined";
-// import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
+import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
 import AccessAlarmIcon from "@mui/icons-material/AccessAlarm";
-import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 
 interface StatsData {
   devices: number;
   users: number;
-  vectorIndexes: number;
   schedulerLogs: number;
   appLogs: number;
+  embeddings: number;
 }
 
 const statCards: {
@@ -37,33 +36,26 @@ const statCards: {
     color: "#3B82F6",
     bgGradient: "linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)",
   },
-  // {
-  //   key: "users",
-  //   label: "Users",
-  //   icon: PeopleOutlinedIcon,
-  //   color: "#10B981",
-  //   bgGradient: "linear-gradient(135deg, #10B981 0%, #34D399 100%)",
-  // },
   {
-    key: "vectorIndexes",
-    label: "Vector indexes",
+    key: "users",
+    label: "Users",
+    icon: PeopleOutlinedIcon,
+    color: "#10B981",
+    bgGradient: "linear-gradient(135deg, #10B981 0%, #34D399 100%)",
+  },
+  {
+    key: "embeddings",
+    label: "Embeddings",
     icon: StorageOutlinedIcon,
     color: "#8B5CF6",
     bgGradient: "linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)",
   },
   {
     key: "schedulerLogs",
-    label: "Scheduler logs",
+    label: "Schedulers",
     icon: AccessAlarmIcon,
     color: "#F59E0B",
     bgGradient: "linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)",
-  },
-  {
-    key: "appLogs",
-    label: "App logs",
-    icon: DescriptionOutlinedIcon,
-    color: "#EF4444",
-    bgGradient: "linear-gradient(135deg, #EF4444 0%, #F87171 100%)",
   },
 ];
 
@@ -83,7 +75,7 @@ export default function DashboardView() {
           setStats({
             devices: result.devices ?? 0,
             users: result.users ?? 0,
-            vectorIndexes: result.vectorIndexes ?? 0,
+            embeddings: result.embeddings ?? 0,
             schedulerLogs: result.schedulerLogs ?? 0,
             appLogs: result.appLogs ?? 0,
           });
