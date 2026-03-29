@@ -409,6 +409,8 @@ export default function AppLayout() {
           </Alert>
         </Snackbar>
       </Box>
+
+      {/* Launcher (bottom) + chat UI in right Drawer — see ChatWidget */}
       <ChatWidget />
     </Box>
   );
