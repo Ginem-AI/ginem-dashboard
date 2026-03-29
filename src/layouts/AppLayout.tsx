@@ -248,7 +248,7 @@ export default function AppLayout() {
                   fontSize: { xs: 14, sm: 16 },
                 }}
               >
-                DASHBOARD
+                GINEM AI
               </Typography>
             </Box>
 

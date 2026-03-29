@@ -422,96 +422,94 @@ export default function ListDeviceView() {
         ]}
       />
 
-      <Paper variant="outlined" sx={{ p: { xs: 1.5, md: 2 } }}>
-        <Stack
-          direction={{ xs: "column", md: "row" }}
-          spacing={1.25}
-          alignItems={{ xs: "flex-start", md: "center" }}
-          justifyContent="space-between"
-        >
-          <Box>
-            <Typography variant="h5" fontWeight={800}>
-              Devices
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Manage your devices
-              {lastUpdated ? ` • Updated ${lastUpdated.toLocaleString()}` : ""}
-            </Typography>
-          </Box>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleOpenAddModal}
-          >
-            Add Device
-          </Button>
-        </Stack>
-
-        {errorMessage ? (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {errorMessage}
-          </Alert>
-        ) : null}
-
-        <Divider sx={{ my: 2 }} />
-
-        <Box sx={{ width: "100%" }}>
-          <CustomToolbar />
-
-          {(!loading && tableData.length === 0) || rowCount === 0 ? (
-            <NoRowsOverlay
-              title="No devices"
-              subtitle="Try adjusting your search or add a new device."
-            />
-          ) : (
-            <Grid container spacing={2} sx={{ mt: 2 }}>
-              {tableData.map((row: any) => (
-                <Grid item key={row?.deviceId} xs={12} md={6}>
-                  <DeviceCard
-                    device={row}
-                    convertTime={convertTime}
-                    onDetail={() => navigate(`/devices/${row?.deviceId}`)}
-                    onEdit={() => handleOpenEditModal(row)}
-                    onDelete={() =>
-                      handleOpenDeleteModal(
-                        row?.deviceId,
-                        row?.deviceName || "Unknown",
-                      )
-                    }
-                  />
-                </Grid>
-              ))}
-            </Grid>
-          )}
-
-          {rowCount > 0 && (
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              alignItems={{ xs: "flex-start", sm: "center" }}
-              justifyContent="space-between"
-              spacing={1.5}
-              sx={{ mt: 3 }}
-            >
-              <Typography variant="body2" color="text.secondary">
-                Showing {tableData.length} of {rowCount} items
-              </Typography>
-
-              <Pagination
-                color="primary"
-                shape="rounded"
-                page={paginationModel.page + 1}
-                count={Math.max(
-                  1,
-                  Math.ceil(rowCount / paginationModel.pageSize),
-                )}
-                onChange={(_, page) =>
-                  setPaginationModel((prev) => ({ ...prev, page: page - 1 }))
-                }
-              />
-            </Stack>
-          )}
+      <Stack
+        direction={{ xs: "column", md: "row" }}
+        spacing={1.25}
+        alignItems={{ xs: "flex-start", md: "center" }}
+        justifyContent="space-between"
+      >
+        <Box>
+          <Typography variant="h5" fontWeight={800}>
+            Devices
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Manage your devices
+            {lastUpdated ? ` • Updated ${lastUpdated.toLocaleString()}` : ""}
+          </Typography>
         </Box>
-      </Paper>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleOpenAddModal}
+        >
+          Add Device
+        </Button>
+      </Stack>
+
+      {errorMessage ? (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {errorMessage}
+        </Alert>
+      ) : null}
+
+      <Divider sx={{ my: 2 }} />
+
+      <Box sx={{ width: "100%" }}>
+        <CustomToolbar />
+
+        {(!loading && tableData.length === 0) || rowCount === 0 ? (
+          <NoRowsOverlay
+            title="No devices"
+            subtitle="Try adjusting your search or add a new device."
+          />
+        ) : (
+          <Grid container spacing={2} sx={{ mt: 2 }}>
+            {tableData.map((row: any) => (
+              <Grid item key={row?.deviceId} xs={12} md={6}>
+                <DeviceCard
+                  device={row}
+                  convertTime={convertTime}
+                  onDetail={() => navigate(`/devices/${row?.deviceId}`)}
+                  onEdit={() => handleOpenEditModal(row)}
+                  onDelete={() =>
+                    handleOpenDeleteModal(
+                      row?.deviceId,
+                      row?.deviceName || "Unknown",
+                    )
+                  }
+                />
+              </Grid>
+            ))}
+          </Grid>
+        )}
+
+        {rowCount > 0 && (
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            alignItems={{ xs: "flex-start", sm: "center" }}
+            justifyContent="space-between"
+            spacing={1.5}
+            sx={{ mt: 3 }}
+          >
+            <Typography variant="body2" color="text.secondary">
+              Showing {tableData.length} of {rowCount} items
+            </Typography>
+
+            <Pagination
+              color="primary"
+              shape="rounded"
+              page={paginationModel.page + 1}
+              count={Math.max(
+                1,
+                Math.ceil(rowCount / paginationModel.pageSize),
+              )}
+              onChange={(_, page) =>
+                setPaginationModel((prev) => ({ ...prev, page: page - 1 }))
+              }
+            />
+          </Stack>
+        )}
+      </Box>
 
       <Dialog
         open={openAddModal}
