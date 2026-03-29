@@ -21,6 +21,7 @@ import { IconMenus } from "../../components/icon";
 import { convertTime } from "../../utilities/convertTime";
 import { useNavigate, useParams } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { IDevice, IDeviceValue } from "../../interfaces/Device";
 
 export default function DetailDeviceView() {
   const { deviceId } = useParams<{ deviceId: string }>();
@@ -29,7 +30,7 @@ export default function DetailDeviceView() {
 
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [device, setDevice] = useState<any>(null);
+  const [device, setDevice] = useState<IDevice | null>(null);
 
   useEffect(() => {
     if (!deviceId) return;
@@ -65,7 +66,7 @@ export default function DetailDeviceView() {
   const metadata = device?.deviceMetadata;
   const metadataEntries =
     metadata && typeof metadata === "object" ? Object.entries(metadata) : [];
-  const deviceItems = device?.deviceItems ?? [];
+  const deviceValues = device?.deviceValues ?? [];
 
   return (
     <Box sx={{ pb: 2 }}>
@@ -166,7 +167,7 @@ export default function DetailDeviceView() {
                     Updated at
                   </Typography>
                   <Typography variant="body2">
-                    {convertTime(device.updatedAt) || "—"}
+                    {convertTime(device?.updatedAt!) || "—"}
                   </Typography>
                 </Box>
               </Stack>
@@ -195,11 +196,11 @@ export default function DetailDeviceView() {
             </Stack>
 
             <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>
-              Device items
+              Device values
             </Typography>
-            {deviceItems.length === 0 ? (
+            {deviceValues.length === 0 ? (
               <Typography variant="body2" color="text.secondary">
-                No device items.
+                No device values.
               </Typography>
             ) : (
               <TableContainer>
@@ -212,10 +213,10 @@ export default function DetailDeviceView() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {deviceItems.map((item: any) => (
-                      <TableRow key={item.deviceItemId}>
-                        <TableCell>{item.deviceItemId}</TableCell>
-                        <TableCell>{item.deviceItemValue ?? "—"}</TableCell>
+                    {deviceValues.map((item: IDeviceValue) => (
+                      <TableRow key={item.deviceValueId}>
+                        <TableCell>{item.deviceValueId}</TableCell>
+                        <TableCell>{item.deviceValueValue ?? "—"}</TableCell>
                         <TableCell>
                           {convertTime(item.createdAt) || "—"}
                         </TableCell>

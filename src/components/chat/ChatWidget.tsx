@@ -4,6 +4,7 @@ import {
   Box,
   CircularProgress,
   Divider,
+  Drawer,
   IconButton,
   Paper,
   Stack,
@@ -14,8 +15,6 @@ import {
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
-import OpenInFullIcon from "@mui/icons-material/OpenInFull";
-import { useNavigate } from "react-router-dom";
 import { useHttp } from "../../hooks/http";
 
 type ChatRole = "user" | "assistant" | "system";
@@ -26,18 +25,18 @@ interface ChatMessage {
   text: string;
 }
 
+const drawerWidth = { xs: "100%", sm: 420, md: 440 };
+
 export function ChatWidget() {
   const { handlePostRequest } = useHttp();
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  const handleToggle = () => {
-    setOpen((prev) => !prev);
-  };
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   const handleSend = async () => {
     const trimmed = input.trim();
@@ -95,49 +94,48 @@ export function ChatWidget() {
   }, [messages, open]);
 
   return (
-    <Box
-      sx={{
-        position: "fixed",
-        bottom: { xs: 12, md: 20 },
-        left: "50%",
-        transform: "translateX(-50%)",
-        zIndex: (theme) => theme.zIndex.tooltip + 10,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        px: 2,
-      }}
-    >
-      <Tooltip title={open ? "Tutup chat" : "Buka chat"}>
-        <Paper
-          elevation={8}
-          onClick={!open ? handleToggle : undefined}
-          sx={(theme) => ({
-            cursor: "pointer",
+    <>
+      {/* Collapsed launcher — bottom center */}
+      {!open && (
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: { xs: 5, md: 8 },
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: (theme) => theme.zIndex.drawer + 1,
             px: 2,
-            py: open ? 1.5 : 1,
-            borderRadius: open ? 3 : 999,
-            display: "flex",
-            alignItems: "center",
-            gap: 1.5,
-            width: { xs: "100%", sm: 360, md: 420 },
-            maxHeight: open ? 520 : 64,
-            background:
-              theme.palette.mode === "dark"
-                ? "rgba(15,23,42,0.96)"
-                : "linear-gradient(90deg, #ffffff, #e5f2ff)",
-            border:
-              theme.palette.mode === "dark"
-                ? "1px solid rgba(148,163,184,0.4)"
-                : "1px solid rgba(59,130,246,0.35)",
-            transition: "all 0.25s ease",
-            overflow: "hidden",
-            flexDirection: "column",
-          })}
+          }}
         >
-          {/* Collapsed state */}
-          {!open && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <Tooltip title="Buka chat">
+            <Paper
+              elevation={8}
+              onClick={handleOpen}
+              sx={(theme) => ({
+                cursor: "pointer",
+                px: 2,
+                py: 1,
+                borderRadius: 999,
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                width: { xs: "100%", sm: 360, md: 420 },
+                maxWidth: "calc(100vw - 24px)",
+                background:
+                  theme.palette.mode === "dark"
+                    ? "rgba(15,23,42,0.96)"
+                    : "linear-gradient(90deg, #ffffff, #e5f2ff)",
+                border:
+                  theme.palette.mode === "dark"
+                    ? "1px solid rgba(148,163,184,0.4)"
+                    : "1px solid rgba(59,130,246,0.35)",
+                transition: "box-shadow 0.2s ease, transform 0.2s ease",
+                "&:hover": {
+                  boxShadow: 12,
+                  transform: "translateY(-1px)",
+                },
+              })}
+            >
               <Avatar
                 sx={{
                   width: 30,
@@ -152,7 +150,7 @@ export function ChatWidget() {
                 />
               </Avatar>
 
-              <Box sx={{ overflow: "hidden" }}>
+              <Box sx={{ overflow: "hidden", flex: 1 }}>
                 <Typography
                   variant="caption"
                   sx={{
@@ -162,7 +160,7 @@ export function ChatWidget() {
                     color: "text.secondary",
                   }}
                 >
-                  Ask Neuro AI
+                  Ask Ginem
                 </Typography>
                 <Typography
                   variant="body2"
@@ -174,13 +172,12 @@ export function ChatWidget() {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  Tanyakan pasar kripto Anda
+                  Tanyakan apa pun tentang Ginem
                 </Typography>
               </Box>
 
               <Box
                 sx={{
-                  ml: 1,
                   px: 1,
                   py: 0.25,
                   borderRadius: 999,
@@ -211,139 +208,150 @@ export function ChatWidget() {
                   /
                 </Typography>
               </Box>
-            </Box>
-          )}
+            </Paper>
+          </Tooltip>
+        </Box>
+      )}
 
-          {/* Expanded chat state */}
-          {open && (
-            <Box
-              sx={{ width: "100%", display: "flex", flexDirection: "column" }}
+      {/* Right sidebar — full chat UI */}
+      <Drawer
+        anchor="right"
+        open={open}
+        onClose={handleClose}
+        ModalProps={{
+          keepMounted: false,
+        }}
+        PaperProps={{
+          sx: {
+            width: drawerWidth,
+            maxWidth: "100vw",
+            display: "flex",
+            flexDirection: "column",
+            borderLeft: "1px solid",
+            borderColor: "divider",
+            background: (theme) =>
+              theme.palette.mode === "dark"
+                ? "rgba(15,23,42,0.98)"
+                : "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)",
+          },
+        }}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 2,
+        }}
+      >
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{
+            px: 2,
+            py: 1.5,
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            flexShrink: 0,
+          }}
+        >
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Avatar sx={{ width: 36, height: 36, bgcolor: "primary.main" }}>
+              <ChatBubbleOutlineIcon fontSize="small" />
+            </Avatar>
+            <Box>
+              <Typography variant="subtitle1" fontWeight={700}>
+                Chat Support
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Tanyakan apa pun tentang Ginem
+              </Typography>
+            </Box>
+          </Stack>
+          <IconButton
+            onClick={handleClose}
+            size="small"
+            aria-label="Tutup chat"
+          >
+            <CloseIcon />
+          </IconButton>
+        </Stack>
+
+        <Box
+          sx={{
+            flex: 1,
+            overflowY: "auto",
+            px: 2,
+            py: 2,
+            backgroundColor: "background.default",
+            minHeight: 0,
+          }}
+        >
+          {messages.length === 0 ? (
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ textAlign: "center", mt: 4 }}
             >
-              <Stack
-                direction="row"
-                alignItems="center"
-                justifyContent="space-between"
-                sx={{ px: 1.5, pb: 1, pt: 0.5 }}
-              >
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <Avatar
-                    sx={{
-                      width: 28,
-                      height: 28,
-                      bgcolor: "primary.main",
-                    }}
+              Mulai percakapan dengan mengirim pesan pertama Anda.
+            </Typography>
+          ) : (
+            <Stack spacing={1.25}>
+              {messages.map((msg) => {
+                const isUser = msg.role === "user";
+                return (
+                  <Stack
+                    key={msg.id}
+                    direction="row"
+                    justifyContent={isUser ? "flex-end" : "flex-start"}
                   >
-                    <ChatBubbleOutlineIcon fontSize="small" />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="subtitle2" fontWeight={700}>
-                      Chat Support
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Tanyakan apa pun tentang Neuro AI
-                    </Typography>
-                  </Box>
-                </Stack>
-
-                <Stack direction="row" spacing={0.5} alignItems="center">
-                  <IconButton
-                    size="small"
-                    onClick={() => navigate("/chat")}
-                    sx={{ mr: 0.5 }}
-                  >
-                    <OpenInFullIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton size="small" onClick={handleToggle}>
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </Stack>
-              </Stack>
-
-              <Divider />
-
-              <Box
-                sx={{
-                  flexGrow: 1,
-                  px: 1.5,
-                  py: 1.25,
-                  overflowY: "auto",
-                  backgroundColor: "background.default",
-                }}
-              >
-                {messages.length === 0 ? (
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ textAlign: "center", mt: 4 }}
-                  >
-                    Mulai percakapan dengan mengirim pesan pertama Anda.
-                  </Typography>
-                ) : (
-                  <Stack spacing={1.25}>
-                    {messages.map((msg) => {
-                      const isUser = msg.role === "user";
-                      return (
-                        <Stack
-                          key={msg.id}
-                          direction="row"
-                          justifyContent={isUser ? "flex-end" : "flex-start"}
-                        >
-                          <Box
-                            sx={{
-                              maxWidth: "80%",
-                              px: 1.5,
-                              py: 1,
-                              borderRadius: 2,
-                              bgcolor: isUser
-                                ? "primary.main"
-                                : "rgba(148, 163, 184, 0.18)",
-                              color: isUser
-                                ? "primary.contrastText"
-                                : "text.primary",
-                              fontSize: 13,
-                              whiteSpace: "pre-wrap",
-                            }}
-                          >
-                            {msg.text}
-                          </Box>
-                        </Stack>
-                      );
-                    })}
-                    <div ref={messagesEndRef} />
+                    <Box
+                      sx={{
+                        maxWidth: "85%",
+                        px: 1.5,
+                        py: 1,
+                        borderRadius: 2,
+                        bgcolor: isUser
+                          ? "primary.main"
+                          : "rgba(148, 163, 184, 0.18)",
+                        color: isUser ? "primary.contrastText" : "text.primary",
+                        fontSize: 13,
+                        whiteSpace: "pre-wrap",
+                      }}
+                    >
+                      {msg.text}
+                    </Box>
                   </Stack>
-                )}
-              </Box>
-
-              <Divider />
-
-              <Box sx={{ px: 1.5, py: 1 }}>
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <TextField
-                    size="small"
-                    fullWidth
-                    placeholder="Ketik pesan..."
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    disabled={sending}
-                  />
-                  <IconButton
-                    color="primary"
-                    onClick={handleSend}
-                    disabled={sending || !input.trim()}
-                  >
-                    {sending ? (
-                      <CircularProgress size={20} />
-                    ) : (
-                      <SendIcon fontSize="small" />
-                    )}
-                  </IconButton>
-                </Stack>
-              </Box>
-            </Box>
+                );
+              })}
+              <div ref={messagesEndRef} />
+            </Stack>
           )}
-        </Paper>
-      </Tooltip>
-    </Box>
+        </Box>
+
+        <Divider />
+
+        <Box sx={{ px: 2, py: 1.5, flexShrink: 0 }}>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <TextField
+              size="small"
+              fullWidth
+              placeholder="Ketik pesan..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={sending}
+            />
+            <IconButton
+              color="primary"
+              onClick={handleSend}
+              disabled={sending || !input.trim()}
+            >
+              {sending ? (
+                <CircularProgress size={20} />
+              ) : (
+                <SendIcon fontSize="small" />
+              )}
+            </IconButton>
+          </Stack>
+        </Box>
+      </Drawer>
+    </>
   );
 }

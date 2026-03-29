@@ -4,13 +4,13 @@ import { useHttp } from "../../hooks/http";
 import {
   Alert,
   Button,
-  Chip,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
   FormControl,
+  Grid,
   IconButton,
   InputAdornment,
   InputLabel,
@@ -19,28 +19,23 @@ import {
   Paper,
   Select,
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
 import BreadCrumberStyle from "../../components/breadcrumb/Index";
 import { IconMenus } from "../../components/icon";
+import DeviceCard from "../../components/DeviceCard";
 import { convertTime } from "../../utilities/convertTime";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import CloseIcon from "@mui/icons-material/Close";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import { IDevice } from "../../interfaces/Device";
 
 function NoRowsOverlay({
   title,
@@ -83,13 +78,15 @@ const initialEditFormState = {
 };
 
 export default function ListDeviceView() {
-  const [tableData, setTableData] = useState<any[]>([]);
+  const [tableData, setTableData] = useState<IDevice[]>([]);
+
   const {
     handleGetTableDataRequest,
     handlePostRequest,
     handleRemoveRequest,
     handleUpdateRequest,
   } = useHttp();
+
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -97,8 +94,9 @@ export default function ListDeviceView() {
   const [rowCount, setRowCount] = useState(0);
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 25,
-    page: 0,
+    page: 1,
   });
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
@@ -269,14 +267,18 @@ export default function ListDeviceView() {
 
   const handleEditDeviceSubmit = async () => {
     if (!deviceToEdit?.deviceId) return;
+
     setEditFormError(null);
+
     if (!editForm.deviceName?.trim()) {
       setEditFormError("Device name is required.");
       return;
     }
     try {
       setEditSubmitLoading(true);
+
       const deviceMetadata: Record<string, string> = {};
+
       if (editForm.deviceMetadataRoom.trim())
         deviceMetadata.room = editForm.deviceMetadataRoom.trim();
       if (editForm.deviceMetadataVoltage.trim())
@@ -289,10 +291,12 @@ export default function ListDeviceView() {
           editForm.deviceFirmwareVersion.trim() || undefined,
         deviceMetadata,
       };
+
       await handleUpdateRequest({
         path: `/devices/${deviceToEdit.deviceId}`,
         body,
       });
+
       handleCloseEditModal();
       const search = searchParams.get("search") || "";
       getTableData({ search });
@@ -406,15 +410,6 @@ export default function ListDeviceView() {
     );
   }
 
-  const getStatusColor = (
-    status: string,
-  ): "default" | "primary" | "success" | "warning" | "error" => {
-    const s = String(status ?? "").toLowerCase();
-    if (s === "online") return "success";
-    if (s === "offline") return "warning";
-    return "default";
-  };
-
   return (
     <Box sx={{ pb: 2 }}>
       <BreadCrumberStyle
@@ -427,207 +422,94 @@ export default function ListDeviceView() {
         ]}
       />
 
-      <Paper variant="outlined" sx={{ p: { xs: 1.5, md: 2 } }}>
-        <Stack
-          direction={{ xs: "column", md: "row" }}
-          spacing={1.25}
-          alignItems={{ xs: "flex-start", md: "center" }}
-          justifyContent="space-between"
-        >
-          <Box>
-            <Typography variant="h5" fontWeight={800}>
-              Devices
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Manage your devices
-              {lastUpdated ? ` • Updated ${lastUpdated.toLocaleString()}` : ""}
-            </Typography>
-          </Box>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleOpenAddModal}
-          >
-            Add Device
-          </Button>
-        </Stack>
-
-        {errorMessage ? (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {errorMessage}
-          </Alert>
-        ) : null}
-
-        <Divider sx={{ my: 2 }} />
-
-        <Box sx={{ width: "100%" }}>
-          <CustomToolbar />
-
-          {(!loading && tableData.length === 0) || rowCount === 0 ? (
-            <NoRowsOverlay
-              title="No devices"
-              subtitle="Try adjusting your search or add a new device."
-            />
-          ) : (
-            <TableContainer sx={{ mt: 2 }}>
-              <Table size="small" stickyHeader>
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 700 }}>Name</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Firmware</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Metadata</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Created At</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      Actions
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {tableData.map((row: any) => {
-                    const status = String(row?.deviceStatus ?? "offline");
-                    const metadata = row?.deviceMetadata;
-                    const metadataLabel =
-                      metadata && typeof metadata === "object"
-                        ? Object.entries(metadata)
-                            .map(([k, v]) => `${k}: ${v}`)
-                            .join(", ")
-                        : "-";
-
-                    return (
-                      <TableRow
-                        key={row?.deviceId}
-                        hover
-                        sx={{
-                          "&:last-child td, &:last-child th": { border: 0 },
-                        }}
-                      >
-                        <TableCell>
-                          <Typography variant="body2" fontWeight={600}>
-                            {row?.deviceName || "-"}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {row?.deviceToken || "-"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2">
-                            {row?.deviceType || "-"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            size="small"
-                            label={
-                              status.charAt(0).toUpperCase() +
-                              status.slice(1).toLowerCase()
-                            }
-                            color={getStatusColor(status)}
-                            variant="outlined"
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2">
-                            {row?.deviceFirmwareVersion || "-"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              maxWidth: 180,
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                            }}
-                            title={metadataLabel}
-                          >
-                            {metadataLabel || "-"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" color="text.secondary">
-                            {convertTime(row?.createdAt) || "-"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right">
-                          <Stack
-                            direction="row"
-                            spacing={0.5}
-                            justifyContent="flex-end"
-                          >
-                            <Tooltip title="Detail">
-                              <IconButton
-                                size="small"
-                                onClick={() =>
-                                  navigate(`/devices/${row?.deviceId}`)
-                                }
-                              >
-                                <VisibilityOutlinedIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Update">
-                              <IconButton
-                                size="small"
-                                color="primary"
-                                onClick={() => handleOpenEditModal(row)}
-                              >
-                                <EditOutlinedIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Delete">
-                              <IconButton
-                                size="small"
-                                color="error"
-                                onClick={() =>
-                                  handleOpenDeleteModal(
-                                    row?.deviceId,
-                                    row?.deviceName || "Unknown",
-                                  )
-                                }
-                              >
-                                <DeleteOutlinedIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                          </Stack>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-
-          {rowCount > 0 && (
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              alignItems={{ xs: "flex-start", sm: "center" }}
-              justifyContent="space-between"
-              spacing={1.5}
-              sx={{ mt: 3 }}
-            >
-              <Typography variant="body2" color="text.secondary">
-                Showing {tableData.length} of {rowCount} items
-              </Typography>
-
-              <Pagination
-                color="primary"
-                shape="rounded"
-                page={paginationModel.page + 1}
-                count={Math.max(
-                  1,
-                  Math.ceil(rowCount / paginationModel.pageSize),
-                )}
-                onChange={(_, page) =>
-                  setPaginationModel((prev) => ({ ...prev, page: page - 1 }))
-                }
-              />
-            </Stack>
-          )}
+      <Stack
+        direction={{ xs: "column", md: "row" }}
+        spacing={1.25}
+        alignItems={{ xs: "flex-start", md: "center" }}
+        justifyContent="space-between"
+      >
+        <Box>
+          <Typography variant="h5" fontWeight={800}>
+            Devices
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Manage your devices
+            {lastUpdated ? ` • Updated ${lastUpdated.toLocaleString()}` : ""}
+          </Typography>
         </Box>
-      </Paper>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleOpenAddModal}
+        >
+          Add Device
+        </Button>
+      </Stack>
+
+      {errorMessage ? (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {errorMessage}
+        </Alert>
+      ) : null}
+
+      <Divider sx={{ my: 2 }} />
+
+      <Box sx={{ width: "100%" }}>
+        <CustomToolbar />
+
+        {(!loading && tableData.length === 0) || rowCount === 0 ? (
+          <NoRowsOverlay
+            title="No devices"
+            subtitle="Try adjusting your search or add a new device."
+          />
+        ) : (
+          <Grid container spacing={2} sx={{ mt: 2 }}>
+            {tableData.map((row: any) => (
+              <Grid item key={row?.deviceId} xs={12} md={6}>
+                <DeviceCard
+                  device={row}
+                  convertTime={convertTime}
+                  onDetail={() => navigate(`/devices/${row?.deviceId}`)}
+                  onEdit={() => handleOpenEditModal(row)}
+                  onDelete={() =>
+                    handleOpenDeleteModal(
+                      row?.deviceId,
+                      row?.deviceName || "Unknown",
+                    )
+                  }
+                />
+              </Grid>
+            ))}
+          </Grid>
+        )}
+
+        {rowCount > 0 && (
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            alignItems={{ xs: "flex-start", sm: "center" }}
+            justifyContent="space-between"
+            spacing={1.5}
+            sx={{ mt: 3 }}
+          >
+            <Typography variant="body2" color="text.secondary">
+              Showing {tableData.length} of {rowCount} items
+            </Typography>
+
+            <Pagination
+              color="primary"
+              shape="rounded"
+              page={paginationModel.page + 1}
+              count={Math.max(
+                1,
+                Math.ceil(rowCount / paginationModel.pageSize),
+              )}
+              onChange={(_, page) =>
+                setPaginationModel((prev) => ({ ...prev, page: page - 1 }))
+              }
+            />
+          </Stack>
+        )}
+      </Box>
 
       <Dialog
         open={openAddModal}
