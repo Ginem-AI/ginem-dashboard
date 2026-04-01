@@ -375,7 +375,6 @@ export default function AppLayout() {
 
         <Box
           sx={{
-            background: t.surface,
             p: { xs: 2, sm: 2.5, md: 3 },
             minHeight: {
               xs: "calc(100vh - 96px)",

@@ -339,124 +339,134 @@ export default function ListDeviceView() {
     };
 
     return (
-      <Stack
-        direction={{ xs: "column", lg: "row" }}
-        spacing={1.25}
-        alignItems={{ xs: "stretch", lg: "center" }}
-        justifyContent="space-between"
-        sx={{ width: "100%" }}
+      <Box
+        sx={{
+          p: 2,
+          backgroundColor: "background.paper",
+          border: "1px solid",
+          borderColor: "divider",
+        }}
       >
-        <Stack direction="row" spacing={1} alignItems="center">
-          <Tooltip title="Refresh">
-            <span>
-              <IconButton
-                size="small"
-                onClick={() => getTableData({ search })}
-                disabled={loading}
-                sx={{
-                  border: 1,
-                  borderColor: "divider",
-                  borderRadius: 1,
-                }}
-              >
-                <RefreshIcon fontSize="small" />
-              </IconButton>
-            </span>
-          </Tooltip>
-        </Stack>
+        <BreadCrumberStyle
+          navigation={[
+            {
+              label: "Devices",
+              link: "/devices",
+              icon: <IconMenus.device fontSize="small" />,
+            },
+          ]}
+        />
 
         <Stack
           direction={{ xs: "column", md: "row" }}
-          spacing={1}
-          alignItems={{ xs: "stretch", md: "center" }}
+          spacing={1.25}
+          alignItems={{ xs: "flex-start", md: "center" }}
+          justifyContent="space-between"
         >
-          <TextField
-            size="small"
-            placeholder="Search devices..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" />
-                </InputAdornment>
-              ),
-              endAdornment: search ? (
-                <InputAdornment position="end">
-                  <Tooltip title="Clear">
-                    <IconButton
-                      size="small"
-                      onClick={() => setSearch("")}
-                      edge="end"
-                    >
-                      <CloseIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </InputAdornment>
-              ) : undefined,
-            }}
-          />
+          <Box>
+            <Typography variant="h5" fontWeight={800}>
+              Devices
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Manage your devices
+              {lastUpdated ? ` • Updated ${lastUpdated.toLocaleString()}` : ""}
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleOpenAddModal}
+          >
+            Add Device
+          </Button>
+        </Stack>
+
+        <Divider sx={{ my: 2 }} />
+
+        <Stack
+          direction={{ xs: "column", lg: "row" }}
+          spacing={1.25}
+          alignItems={{ xs: "stretch", lg: "center" }}
+          justifyContent="space-between"
+          sx={{ width: "100%" }}
+          bgcolor="background.paper"
+        >
           <Stack direction="row" spacing={1} alignItems="center">
-            <Button variant="outlined" onClick={handleSearch}>
-              Apply
-            </Button>
-            <Button
-              variant="text"
-              color="inherit"
-              onClick={handleReset}
-              startIcon={<RestartAltIcon fontSize="small" />}
-            >
-              Reset
-            </Button>
+            <Tooltip title="Refresh">
+              <span>
+                <IconButton
+                  size="small"
+                  onClick={() => getTableData({ search })}
+                  disabled={loading}
+                  sx={{
+                    border: 1,
+                    borderColor: "divider",
+                    borderRadius: 1,
+                  }}
+                >
+                  <RefreshIcon fontSize="small" />
+                </IconButton>
+              </span>
+            </Tooltip>
+          </Stack>
+
+          <Stack
+            direction={{ xs: "column", md: "row" }}
+            spacing={1}
+            alignItems={{ xs: "stretch", md: "center" }}
+          >
+            <TextField
+              size="small"
+              placeholder="Search devices..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" />
+                  </InputAdornment>
+                ),
+                endAdornment: search ? (
+                  <InputAdornment position="end">
+                    <Tooltip title="Clear">
+                      <IconButton
+                        size="small"
+                        onClick={() => setSearch("")}
+                        edge="end"
+                      >
+                        <CloseIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </InputAdornment>
+                ) : undefined,
+              }}
+            />
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Button variant="outlined" onClick={handleSearch}>
+                Apply
+              </Button>
+              <Button
+                variant="text"
+                color="inherit"
+                onClick={handleReset}
+                startIcon={<RestartAltIcon fontSize="small" />}
+              >
+                Reset
+              </Button>
+            </Stack>
           </Stack>
         </Stack>
-      </Stack>
+      </Box>
     );
   }
 
   return (
     <Box sx={{ pb: 2 }}>
-      <BreadCrumberStyle
-        navigation={[
-          {
-            label: "Devices",
-            link: "/devices",
-            icon: <IconMenus.device fontSize="small" />,
-          },
-        ]}
-      />
-
-      <Stack
-        direction={{ xs: "column", md: "row" }}
-        spacing={1.25}
-        alignItems={{ xs: "flex-start", md: "center" }}
-        justifyContent="space-between"
-      >
-        <Box>
-          <Typography variant="h5" fontWeight={800}>
-            Devices
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Manage your devices
-            {lastUpdated ? ` • Updated ${lastUpdated.toLocaleString()}` : ""}
-          </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleOpenAddModal}
-        >
-          Add Device
-        </Button>
-      </Stack>
-
       {errorMessage ? (
         <Alert severity="error" sx={{ mt: 2 }}>
           {errorMessage}
         </Alert>
       ) : null}
-
-      <Divider sx={{ my: 2 }} />
 
       <Box sx={{ width: "100%" }}>
         <CustomToolbar />
