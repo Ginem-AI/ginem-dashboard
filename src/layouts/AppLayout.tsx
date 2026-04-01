@@ -187,7 +187,7 @@ export default function AppLayout() {
 
     {
       title: "Embedding",
-      link: "/vector-indexes",
+      link: "/indexing",
       icon: <IconMenus.vectorIndexes />,
     },
 

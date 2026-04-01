@@ -12,7 +12,6 @@ import ListDeviceView from "../pages/devices/ListDeviceView";
 import DetailDeviceView from "../pages/devices/DetailDeviceView";
 import ListSchedulerView from "../pages/scheduler/ListSchedulerView";
 import ListLoggerView from "../pages/logger/ListLoggerView";
-import EmbeddingView from "../pages/embedding/EmbeddingView";
 import ListEmbeddingView from "../pages/embedding/ListEmbeddingView";
 
 export default function AppRouters() {
@@ -55,12 +54,8 @@ export default function AppRouters() {
       element: <ListLoggerView />,
     },
     {
-      path: "/vector-indexes",
+      path: "/indexing",
       element: <ListEmbeddingView />,
-    },
-    {
-      path: "/vector-indexes/index",
-      element: <EmbeddingView />,
     },
 
     //my profile routers

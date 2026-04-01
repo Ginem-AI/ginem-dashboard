@@ -9,15 +9,10 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  FormControl,
   Grid,
   IconButton,
   InputAdornment,
-  InputLabel,
-  MenuItem,
   Pagination,
-  Paper,
-  Select,
   Stack,
   TextField,
   Tooltip,
@@ -25,7 +20,7 @@ import {
 } from "@mui/material";
 import BreadCrumberStyle from "../../components/breadcrumb/Index";
 import { IconMenus } from "../../components/icon";
-import DeviceCard from "../../components/DeviceCard";
+import DeviceCard, { DeviceCardItem } from "../../components/DeviceCard";
 import { convertTime } from "../../utilities/convertTime";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
@@ -34,8 +29,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { IDevice } from "../../interfaces/Device";
+import FormDevice, {
+  DeviceCreateFormState,
+  DeviceEditFormState,
+} from "./FormDevice";
 
 function NoRowsOverlay({
   title,
@@ -61,7 +59,7 @@ function NoRowsOverlay({
   );
 }
 
-const initialFormState = {
+const initialFormState: DeviceCreateFormState = {
   deviceName: "",
   deviceType: "",
   deviceFirmwareVersion: "",
@@ -69,7 +67,7 @@ const initialFormState = {
   deviceMetadataVoltage: "",
 };
 
-const initialEditFormState = {
+const initialEditFormState: DeviceEditFormState = {
   deviceName: "",
   deviceStatus: "",
   deviceFirmwareVersion: "",
@@ -93,7 +91,7 @@ export default function ListDeviceView() {
   const [loading, setLoading] = useState(false);
   const [rowCount, setRowCount] = useState(0);
   const [paginationModel, setPaginationModel] = useState({
-    pageSize: 25,
+    pageSize: 10,
     page: 1,
   });
 
@@ -103,7 +101,8 @@ export default function ListDeviceView() {
   const [openAddModal, setOpenAddModal] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [addFormError, setAddFormError] = useState<string | null>(null);
-  const [addForm, setAddForm] = useState(initialFormState);
+  const [addForm, setAddForm] =
+    useState<DeviceCreateFormState>(initialFormState);
 
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -115,8 +114,9 @@ export default function ListDeviceView() {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [editSubmitLoading, setEditSubmitLoading] = useState(false);
   const [editFormError, setEditFormError] = useState<string | null>(null);
-  const [deviceToEdit, setDeviceToEdit] = useState<any>(null);
-  const [editForm, setEditForm] = useState(initialEditFormState);
+  const [deviceToEdit, setDeviceToEdit] = useState<IDevice | null>(null);
+  const [editForm, setEditForm] =
+    useState<DeviceEditFormState>(initialEditFormState);
 
   const getTableData = async ({ search }: { search: string }) => {
     try {
@@ -124,8 +124,8 @@ export default function ListDeviceView() {
       setErrorMessage(null);
       const result = await handleGetTableDataRequest({
         path: "/devices",
-        page: paginationModel.page,
-        size: paginationModel.pageSize,
+        page: paginationModel.page ?? 1,
+        size: paginationModel.pageSize ?? 10,
         filter: { search },
       });
 
@@ -176,22 +176,28 @@ export default function ListDeviceView() {
     }
     try {
       setSubmitLoading(true);
-      const body = {
+      const deviceMetadata: Record<string, string> = {};
+
+      if (addForm.deviceMetadataRoom.trim()) {
+        deviceMetadata.room = addForm.deviceMetadataRoom.trim();
+      }
+      if (addForm.deviceMetadataVoltage.trim()) {
+        deviceMetadata.voltage = addForm.deviceMetadataVoltage.trim();
+      }
+
+      const body: {
+        deviceName: string;
+        deviceType: string;
+        deviceFirmwareVersion?: string;
+        deviceMetadata?: Record<string, string>;
+      } = {
         deviceName: addForm.deviceName.trim(),
         deviceType: addForm.deviceType.trim(),
         deviceFirmwareVersion:
           addForm.deviceFirmwareVersion.trim() || undefined,
-        deviceMetadata: {
-          ...(addForm.deviceMetadataRoom.trim() && {
-            room: addForm.deviceMetadataRoom.trim(),
-          }),
-          ...(addForm.deviceMetadataVoltage.trim() && {
-            voltage: addForm.deviceMetadataVoltage.trim(),
-          }),
-        },
       };
-      if (Object.keys(body.deviceMetadata).length === 0) {
-        delete (body as any).deviceMetadata;
+      if (Object.keys(deviceMetadata).length > 0) {
+        body.deviceMetadata = deviceMetadata;
       }
       await handlePostRequest({
         path: "/devices",
@@ -239,18 +245,19 @@ export default function ListDeviceView() {
     }
   };
 
-  const handleOpenEditModal = (row: any) => {
+  const handleOpenEditModal = (row: IDevice) => {
     const meta =
       row?.deviceMetadata && typeof row.deviceMetadata === "object"
-        ? row.deviceMetadata
+        ? (row.deviceMetadata as Record<string, unknown>)
         : {};
     setDeviceToEdit(row);
     setEditForm({
       deviceName: row?.deviceName ?? "",
       deviceStatus: row?.deviceStatus ?? "offline",
       deviceFirmwareVersion: row?.deviceFirmwareVersion ?? "",
-      deviceMetadataRoom: meta?.room ?? "",
-      deviceMetadataVoltage: meta?.voltage ?? "",
+      deviceMetadataRoom: typeof meta.room === "string" ? meta.room : "",
+      deviceMetadataVoltage:
+        typeof meta.voltage === "string" ? meta.voltage : "",
     });
     setEditFormError(null);
     setOpenEditModal(true);
@@ -285,6 +292,7 @@ export default function ListDeviceView() {
         deviceMetadata.voltage = editForm.deviceMetadataVoltage.trim();
 
       const body = {
+        deviceId: deviceToEdit.deviceId,
         deviceName: editForm.deviceName.trim(),
         deviceStatus: editForm.deviceStatus || "offline",
         deviceFirmwareVersion:
@@ -293,7 +301,7 @@ export default function ListDeviceView() {
       };
 
       await handleUpdateRequest({
-        path: `/devices/${deviceToEdit.deviceId}`,
+        path: `/devices`,
         body,
       });
 
@@ -464,10 +472,10 @@ export default function ListDeviceView() {
           />
         ) : (
           <Grid container spacing={2} sx={{ mt: 2 }}>
-            {tableData.map((row: any) => (
+            {tableData.map((row) => (
               <Grid item key={row?.deviceId} xs={12} md={6}>
                 <DeviceCard
-                  device={row}
+                  device={row as DeviceCardItem}
                   convertTime={convertTime}
                   onDetail={() => navigate(`/devices/${row?.deviceId}`)}
                   onEdit={() => handleOpenEditModal(row)}
@@ -511,246 +519,27 @@ export default function ListDeviceView() {
         )}
       </Box>
 
-      <Dialog
+      <FormDevice
         open={openAddModal}
+        submitLoading={submitLoading}
+        formError={addFormError}
+        mode="create"
+        form={addForm}
+        setForm={setAddForm}
         onClose={handleCloseAddModal}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Add Device</DialogTitle>
-        <DialogContent>
-          {addFormError ? (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {addFormError}
-            </Alert>
-          ) : null}
-          <Stack spacing={2} sx={{ pt: 1 }}>
-            <TextField
-              size="small"
-              label="Device Name"
-              required
-              fullWidth
-              value={addForm.deviceName}
-              onChange={(e) =>
-                setAddForm((prev) => ({ ...prev, deviceName: e.target.value }))
-              }
-              placeholder="e.g. Sensor Kebakaran"
-            />
-            <FormControl size="small" fullWidth required>
-              <InputLabel id="add-device-type-label">Device Type</InputLabel>
-              <Select
-                labelId="add-device-type-label"
-                id="add-device-type"
-                value={addForm.deviceType}
-                label="Device Type"
-                onChange={(e) =>
-                  setAddForm((prev) => ({
-                    ...prev,
-                    deviceType: e.target.value,
-                  }))
-                }
-              >
-                <MenuItem value="sensor">sensor</MenuItem>
-                <MenuItem value="actuator">actuator</MenuItem>
-                <MenuItem value="hybrid">hybrid</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl size="small" fullWidth>
-              <InputLabel id="add-device-firmware-label">
-                Firmware Version
-              </InputLabel>
-              <Select
-                labelId="add-device-firmware-label"
-                id="add-device-firmware"
-                value={addForm.deviceFirmwareVersion}
-                label="Firmware Version"
-                onChange={(e) =>
-                  setAddForm((prev) => ({
-                    ...prev,
-                    deviceFirmwareVersion: e.target.value,
-                  }))
-                }
-              >
-                <MenuItem value="">
-                  <em>None</em>
-                </MenuItem>
-                <MenuItem value="v1.0.0">v1.0.0</MenuItem>
-                <MenuItem value="v1.1.0">v1.1.0</MenuItem>
-                <MenuItem value="v2.0.0">v2.0.0</MenuItem>
-                <MenuItem value="v2.1.0">v2.1.0</MenuItem>
-                <MenuItem value="v3.0.0">v3.0.0</MenuItem>
-              </Select>
-            </FormControl>
-            <Typography
-              variant="subtitle2"
-              color="text.secondary"
-              sx={{ pt: 0.5 }}
-            >
-              Metadata (optional)
-            </Typography>
-            <TextField
-              size="small"
-              label="Room"
-              fullWidth
-              value={addForm.deviceMetadataRoom}
-              onChange={(e) =>
-                setAddForm((prev) => ({
-                  ...prev,
-                  deviceMetadataRoom: e.target.value,
-                }))
-              }
-              placeholder="e.g. bedroom"
-            />
-            <TextField
-              size="small"
-              label="Voltage"
-              fullWidth
-              value={addForm.deviceMetadataVoltage}
-              onChange={(e) =>
-                setAddForm((prev) => ({
-                  ...prev,
-                  deviceMetadataVoltage: e.target.value,
-                }))
-              }
-              placeholder="e.g. 220V"
-            />
-          </Stack>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={handleCloseAddModal} disabled={submitLoading}>
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleAddDeviceSubmit}
-            disabled={submitLoading}
-          >
-            {submitLoading ? "Submitting..." : "Submit"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onSubmit={handleAddDeviceSubmit}
+      />
 
-      <Dialog
+      <FormDevice
         open={openEditModal}
+        submitLoading={editSubmitLoading}
+        formError={editFormError}
+        mode="edit"
+        form={editForm}
+        setForm={setEditForm}
         onClose={handleCloseEditModal}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Update Device</DialogTitle>
-        <DialogContent>
-          {editFormError ? (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {editFormError}
-            </Alert>
-          ) : null}
-          <Stack spacing={2} sx={{ pt: 1 }}>
-            <TextField
-              size="small"
-              label="Device Name"
-              required
-              fullWidth
-              value={editForm.deviceName}
-              onChange={(e) =>
-                setEditForm((prev) => ({ ...prev, deviceName: e.target.value }))
-              }
-              placeholder="e.g. Sensor Kebakaran"
-            />
-            <FormControl size="small" fullWidth>
-              <InputLabel id="edit-device-status-label">
-                Device Status
-              </InputLabel>
-              <Select
-                labelId="edit-device-status-label"
-                id="edit-device-status"
-                value={editForm.deviceStatus}
-                label="Device Status"
-                onChange={(e) =>
-                  setEditForm((prev) => ({
-                    ...prev,
-                    deviceStatus: e.target.value,
-                  }))
-                }
-              >
-                <MenuItem value="online">online</MenuItem>
-                <MenuItem value="offline">offline</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl size="small" fullWidth>
-              <InputLabel id="edit-device-firmware-label">
-                Firmware Version
-              </InputLabel>
-              <Select
-                labelId="edit-device-firmware-label"
-                id="edit-device-firmware"
-                value={editForm.deviceFirmwareVersion}
-                label="Firmware Version"
-                onChange={(e) =>
-                  setEditForm((prev) => ({
-                    ...prev,
-                    deviceFirmwareVersion: e.target.value,
-                  }))
-                }
-              >
-                <MenuItem value="">
-                  <em>None</em>
-                </MenuItem>
-                <MenuItem value="v1.0.0">v1.0.0</MenuItem>
-                <MenuItem value="v1.1.0">v1.1.0</MenuItem>
-                <MenuItem value="v2.0.0">v2.0.0</MenuItem>
-                <MenuItem value="v2.1.0">v2.1.0</MenuItem>
-                <MenuItem value="v2.2.0">v2.2.0</MenuItem>
-                <MenuItem value="v3.0.0">v3.0.0</MenuItem>
-              </Select>
-            </FormControl>
-            <Typography
-              variant="subtitle2"
-              color="text.secondary"
-              sx={{ pt: 0.5 }}
-            >
-              Metadata (optional)
-            </Typography>
-            <TextField
-              size="small"
-              label="Room"
-              fullWidth
-              value={editForm.deviceMetadataRoom}
-              onChange={(e) =>
-                setEditForm((prev) => ({
-                  ...prev,
-                  deviceMetadataRoom: e.target.value,
-                }))
-              }
-              placeholder="e.g. bedroom"
-            />
-            <TextField
-              size="small"
-              label="Voltage"
-              fullWidth
-              value={editForm.deviceMetadataVoltage}
-              onChange={(e) =>
-                setEditForm((prev) => ({
-                  ...prev,
-                  deviceMetadataVoltage: e.target.value,
-                }))
-              }
-              placeholder="e.g. 220V"
-            />
-          </Stack>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={handleCloseEditModal} disabled={editSubmitLoading}>
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleEditDeviceSubmit}
-            disabled={editSubmitLoading}
-            startIcon={<EditOutlinedIcon sx={{ fontSize: 18 }} />}
-          >
-            {editSubmitLoading ? "Updating..." : "Update"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onSubmit={handleEditDeviceSubmit}
+      />
 
       <Dialog
         open={openDeleteModal}
