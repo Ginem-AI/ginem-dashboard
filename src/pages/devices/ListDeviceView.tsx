@@ -373,7 +373,7 @@ export default function ListDeviceView() {
             </Typography>
           </Box>
           <Button
-            variant="contained"
+            variant="outlined"
             startIcon={<AddIcon />}
             onClick={handleOpenAddModal}
           >

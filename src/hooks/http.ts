@@ -111,7 +111,7 @@ export const useHttp = () => {
       const result = await serviceHttp.getTableData({
         url: CONFIGS.baseUrl + props.path,
         pagination: true,
-        page: props.page || 0,
+        page: props.page || 1,
         size: props.size || 10,
         filters: props.filter,
       });

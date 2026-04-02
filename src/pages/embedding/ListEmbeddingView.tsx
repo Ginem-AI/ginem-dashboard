@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useHttp } from "../../hooks/http";
 import {
   Alert,
@@ -21,7 +21,12 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { DataGrid, GridColDef, GridPaginationModel } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridActionsCellItem,
+  GridColDef,
+  GridPaginationModel,
+} from "@mui/x-data-grid";
 import BreadCrumberStyle from "../../components/breadcrumb/Index";
 import { IconMenus } from "../../components/icon";
 import { convertTime } from "../../utilities/convertTime";
@@ -36,6 +41,7 @@ import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useAppContext } from "../../context/app.context";
 import { IIndexing } from "../../interfaces/Indexing";
+import DeleteModalIndexing from "./DeleteModalIndexing";
 
 const INDEX_SOURCE_OPTIONS = ["text", "pdf", "json"] as const;
 
@@ -173,7 +179,8 @@ function EmbeddingListToolbar({
 
 export default function ListEmbeddingView() {
   const [tableData, setTableData] = useState<IIndexing[]>([]);
-  const { handleGetTableDataRequest, handlePostRequest } = useHttp();
+  const { handleGetTableDataRequest, handlePostRequest, handleRemoveRequest } =
+    useHttp();
   const { setAppAlert } = useAppContext();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -181,7 +188,7 @@ export default function ListEmbeddingView() {
   const [rowCount, setRowCount] = useState(0);
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
-    pageSize: 20,
+    pageSize: 10,
   });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -193,6 +200,12 @@ export default function ListEmbeddingView() {
   ]);
   const [submitIndexingLoading, setSubmitIndexingLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+
+  const [deleteTarget, setDeleteTarget] = useState<{
+    indexingId: number;
+    preview: string | null;
+  } | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const apiPage = paginationModel.page + 1;
 
@@ -230,10 +243,9 @@ export default function ListEmbeddingView() {
     setFormError(null);
     setSubmitIndexingLoading(true);
     try {
-      console.log(documents);
       const result = await handlePostRequest({
         path: "/indexing",
-        body: documents,
+        body: { documents },
       });
       if (result !== undefined && result !== null) {
         setAppAlert({
@@ -301,6 +313,46 @@ export default function ListEmbeddingView() {
     setSearchParams(new URLSearchParams());
   };
 
+  const handleOpenDeleteModal = useCallback((row: IIndexing) => {
+    const raw = row.content?.trim() ?? "";
+    if (raw.length > 80) {
+      setDeleteTarget({
+        indexingId: row.indexingId,
+        preview: `${raw.slice(0, 80)}…`,
+      });
+    } else {
+      setDeleteTarget({
+        indexingId: row.indexingId,
+        preview: raw || null,
+      });
+    }
+  }, []);
+
+  const handleCloseDeleteModal = useCallback(() => {
+    if (!deleteLoading) setDeleteTarget(null);
+  }, [deleteLoading]);
+
+  const handleConfirmDeleteIndexing = useCallback(async () => {
+    if (!deleteTarget) return;
+    setDeleteLoading(true);
+    try {
+      const result = await handleRemoveRequest({
+        path: `/indexing/${deleteTarget.indexingId}`,
+      });
+      if (result !== undefined && result !== null) {
+        setAppAlert({
+          isDisplayAlert: true,
+          message: "Vector index deleted.",
+          alertType: "success",
+        });
+        setDeleteTarget(null);
+        setRefreshToken((t) => t + 1);
+      }
+    } finally {
+      setDeleteLoading(false);
+    }
+  }, [deleteTarget, handleRemoveRequest, setAppAlert]);
+
   const columns: GridColDef<IIndexing & { id: number }>[] = useMemo(
     () => [
       {
@@ -346,8 +398,25 @@ export default function ListEmbeddingView() {
         valueFormatter: (params) =>
           convertTime(String(params.value ?? "")) || "—",
       },
+      {
+        field: "actions",
+        type: "actions",
+        headerName: "Actions",
+        width: 88,
+        align: "center",
+        headerAlign: "center",
+        getActions: ({ row }) => [
+          <GridActionsCellItem
+            key="delete"
+            icon={<DeleteOutlineIcon />}
+            label="Delete"
+            onClick={() => handleOpenDeleteModal(row as IIndexing)}
+            showInMenu={false}
+          />,
+        ],
+      },
     ],
-    [],
+    [handleOpenDeleteModal],
   );
 
   const rows = useMemo(
@@ -425,7 +494,7 @@ export default function ListEmbeddingView() {
                 columns={columns}
                 loading={loading}
                 rowCount={rowCount}
-                pageSizeOptions={[10, 20, 50]}
+                pageSizeOptions={[5, 10, 20, 50]}
                 paginationModel={paginationModel}
                 paginationMode="server"
                 onPaginationModelChange={setPaginationModel}
@@ -567,6 +636,15 @@ export default function ListEmbeddingView() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <DeleteModalIndexing
+        open={deleteTarget !== null}
+        loading={deleteLoading}
+        indexingId={deleteTarget?.indexingId ?? null}
+        previewLabel={deleteTarget?.preview ?? null}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDeleteIndexing}
+      />
     </Box>
   );
 }
