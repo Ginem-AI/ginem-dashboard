@@ -1,24 +1,19 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import Box from "@mui/material/Box";
 import {
   GridRowsProp,
   DataGrid,
   GridColDef,
-  GridActionsCellItem,
   GridToolbarContainer,
   GridToolbarExport,
 } from "@mui/x-data-grid";
-import { MoreOutlined } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import { useHttp } from "../../hooks/http";
 import { Button, Chip, Stack, TextField } from "@mui/material";
 import BreadCrumberStyle from "../../components/breadcrumb/Index";
 import { IconMenus } from "../../components/icon";
-import { useNavigate } from "react-router-dom";
 import { convertTime } from "../../utilities/convertTime";
 
 export default function ListLoggerView() {
-  const navigation = useNavigate();
   const [tableData, setTableData] = useState<GridRowsProp[]>([]);
   const { handleGetTableDataRequest } = useHttp();
 
@@ -152,7 +147,7 @@ export default function ListLoggerView() {
           columns={columns}
           editMode="row"
           getRowId={(row: any) => row.appLogId}
-          sx={{ backgroundColor: "white", p: 2 }}
+          sx={{ backgroundColor: "background.default", p: 2 }}
           autoHeight
           initialState={{
             pagination: { paginationModel: { pageSize: 2, page: 1 } },

@@ -13,6 +13,8 @@ import DetailDeviceView from "../pages/devices/DetailDeviceView";
 import ListSchedulerView from "../pages/scheduler/ListSchedulerView";
 import ListLoggerView from "../pages/logger/ListLoggerView";
 import ListEmbeddingView from "../pages/embedding/ListEmbeddingView";
+import ListAdminView from "../pages/admins/ListAdminsView";
+import SettingsView from "../pages/setting/SettingsView";
 
 export default function AppRouters() {
   const routers: { path: string; element: JSX.Element }[] = [];
@@ -58,6 +60,11 @@ export default function AppRouters() {
       element: <ListEmbeddingView />,
     },
 
+    {
+      path: "/admin",
+      element: <ListAdminView />,
+    },
+
     //my profile routers
     {
       path: "/my-profile",
@@ -66,6 +73,10 @@ export default function AppRouters() {
     {
       path: "/my-profile/edit/:userId",
       element: <ProfileView />,
+    },
+    {
+      path: "/settings",
+      element: <SettingsView />,
     },
   ];
 

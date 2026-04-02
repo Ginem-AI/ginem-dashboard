@@ -37,6 +37,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useAppContext } from "../../context/app.context";
@@ -44,6 +45,13 @@ import { IIndexing } from "../../interfaces/Indexing";
 import DeleteModalIndexing from "./DeleteModalIndexing";
 
 const INDEX_SOURCE_OPTIONS = ["text", "pdf", "json"] as const;
+const CONTENT_PREVIEW_MAX = 200;
+
+function truncateContentForCell(raw: unknown): string {
+  const s = String(raw ?? "");
+  if (s.length <= CONTENT_PREVIEW_MAX) return s;
+  return `${s.slice(0, CONTENT_PREVIEW_MAX)}…`;
+}
 
 type IndexingDocumentDraft = {
   content: string;
@@ -207,6 +215,11 @@ export default function ListEmbeddingView() {
   } | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  const [contentDetail, setContentDetail] = useState<{
+    indexingId: number;
+    content: string;
+  } | null>(null);
+
   const apiPage = paginationModel.page + 1;
 
   const resetAddForm = () => {
@@ -313,6 +326,17 @@ export default function ListEmbeddingView() {
     setSearchParams(new URLSearchParams());
   };
 
+  const handleOpenContentDetail = useCallback((row: IIndexing) => {
+    setContentDetail({
+      indexingId: row.indexingId,
+      content: row.content ?? "",
+    });
+  }, []);
+
+  const handleCloseContentDetail = useCallback(() => {
+    setContentDetail(null);
+  }, []);
+
   const handleOpenDeleteModal = useCallback((row: IIndexing) => {
     const raw = row.content?.trim() ?? "";
     if (raw.length > 80) {
@@ -374,22 +398,27 @@ export default function ListEmbeddingView() {
         headerName: "Text",
         flex: 1,
         minWidth: 220,
-        renderCell: (params) => (
-          <Tooltip title={String(params.value ?? "")} placement="top-start">
-            <Typography
-              variant="body2"
-              sx={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                maxWidth: "100%",
-                py: 1,
-              }}
-            >
-              {params.value ?? "—"}
-            </Typography>
-          </Tooltip>
-        ),
+        renderCell: (params) => {
+          const full = String(params.value ?? "");
+          const display =
+            full.length === 0 ? "—" : truncateContentForCell(full);
+          return (
+            <Tooltip title={full || "—"} placement="top-start">
+              <Typography
+                variant="body2"
+                sx={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  maxWidth: "100%",
+                  py: 1,
+                }}
+              >
+                {display}
+              </Typography>
+            </Tooltip>
+          );
+        },
       },
       {
         field: "createdAt",
@@ -402,21 +431,30 @@ export default function ListEmbeddingView() {
         field: "actions",
         type: "actions",
         headerName: "Actions",
-        width: 88,
+        width: 120,
         align: "center",
         headerAlign: "center",
         getActions: ({ row }) => [
           <GridActionsCellItem
+            key="detail"
+            icon={<VisibilityOutlinedIcon />}
+            label="Detail"
+            color="info"
+            onClick={() => handleOpenContentDetail(row as IIndexing)}
+            showInMenu={false}
+          />,
+          <GridActionsCellItem
             key="delete"
             icon={<DeleteOutlineIcon />}
             label="Delete"
+            color="error"
             onClick={() => handleOpenDeleteModal(row as IIndexing)}
             showInMenu={false}
           />,
         ],
       },
     ],
-    [handleOpenDeleteModal],
+    [handleOpenContentDetail, handleOpenDeleteModal],
   );
 
   const rows = useMemo(
@@ -645,6 +683,50 @@ export default function ListEmbeddingView() {
         onClose={handleCloseDeleteModal}
         onConfirm={handleConfirmDeleteIndexing}
       />
+
+      <Dialog
+        open={contentDetail !== null}
+        onClose={handleCloseContentDetail}
+        fullWidth
+        maxWidth="md"
+        aria-labelledby="indexing-content-detail-title"
+      >
+        <DialogTitle id="indexing-content-detail-title">
+          Content
+          {contentDetail ? (
+            <Typography
+              component="span"
+              variant="body2"
+              color="text.secondary"
+              sx={{ display: "block", fontWeight: 400, mt: 0.5 }}
+            >
+              Index #{contentDetail.indexingId}
+            </Typography>
+          ) : null}
+        </DialogTitle>
+        <DialogContent dividers>
+          <TextField
+            value={contentDetail?.content ?? ""}
+            fullWidth
+            multiline
+            minRows={12}
+            maxRows={24}
+            InputProps={{ readOnly: true }}
+            sx={{
+              "& .MuiInputBase-input": {
+                fontFamily: "monospace",
+                fontSize: "0.875rem",
+                whiteSpace: "pre-wrap",
+              },
+            }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button variant="contained" onClick={handleCloseContentDetail}>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
