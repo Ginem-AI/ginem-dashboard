@@ -65,7 +65,6 @@ const tokens = {
 
   light: {
     appBg: "#F5F7FB",
-    sidebar: "linear-gradient(180deg, #FFFFFF, #F1F5F9)",
     surface: "#FFFFFF",
     border: "rgba(0,0,0,0.08)",
     hover: "rgba(0,0,0,0.04)",
@@ -132,7 +131,6 @@ const Drawer = styled(MuiDrawer)<{ open?: boolean }>(({ theme, open }) => {
     ...(open ? openedMixin(theme) : closedMixin(theme)),
 
     "& .MuiDrawer-paper": {
-      background: t.sidebar,
       color: t.textSecondary,
       ...(open ? openedMixin(theme) : closedMixin(theme)),
     },
@@ -180,15 +178,15 @@ export default function AppLayout() {
     },
 
     {
-      title: "Logger",
-      link: "/logger",
-      icon: <IconMenus.logger />,
+      title: "Embedding",
+      link: "/indexing",
+      icon: <IconMenus.vectorIndexes />,
     },
 
     {
-      title: "Embedding",
-      link: "/vector-indexes",
-      icon: <IconMenus.vectorIndexes />,
+      title: "Logger",
+      link: "/logger",
+      icon: <IconMenus.logger />,
     },
 
     {
@@ -375,8 +373,7 @@ export default function AppLayout() {
 
         <Box
           sx={{
-            background: t.surface,
-            p: { xs: 2, sm: 2.5, md: 3 },
+            p: { xs: 1, sm: 1.5, md: 2 },
             minHeight: {
               xs: "calc(100vh - 96px)",
               md: "calc(100vh - 110px)",

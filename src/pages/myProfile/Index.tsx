@@ -132,7 +132,7 @@ const ProfileView = () => {
           <Grid item xs={12} md={6}>
             <InfoItem
               label="Last Login"
-              value={convertTime(myProfile?.userEmail ?? "_")}
+              value={convertTime(myProfile?.updatedAt ?? "_")}
             />
           </Grid>
 

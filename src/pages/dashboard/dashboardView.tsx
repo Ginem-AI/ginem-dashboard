@@ -13,13 +13,17 @@ import DeviceHubOutlinedIcon from "@mui/icons-material/DeviceHubOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
 import AccessAlarmIcon from "@mui/icons-material/AccessAlarm";
+import ListLoggerView from "../logger/ListLoggerView";
+import { convertTime } from "../../utilities/convertTime";
+import { Chip } from "@mui/material";
+import { DataGrid, GridColDef, GridRowsProp } from "@mui/x-data-grid";
 
 interface StatsData {
   devices: number;
   users: number;
   schedulerLogs: number;
   appLogs: number;
-  embeddings: number;
+  vectorIndexes: number;
 }
 
 const statCards: {
@@ -44,7 +48,7 @@ const statCards: {
     bgGradient: "linear-gradient(135deg, #10B981 0%, #34D399 100%)",
   },
   {
-    key: "embeddings",
+    key: "vectorIndexes",
     label: "Embeddings",
     icon: StorageOutlinedIcon,
     color: "#8B5CF6",
@@ -62,7 +66,6 @@ const statCards: {
 export default function DashboardView() {
   const { handleGetRequest } = useHttp();
   const [stats, setStats] = useState<StatsData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -75,7 +78,7 @@ export default function DashboardView() {
           setStats({
             devices: result.devices ?? 0,
             users: result.users ?? 0,
-            embeddings: result.embeddings ?? 0,
+            vectorIndexes: result.vectorIndexes ?? 0,
             schedulerLogs: result.schedulerLogs ?? 0,
             appLogs: result.appLogs ?? 0,
           });
@@ -91,6 +94,90 @@ export default function DashboardView() {
     };
     fetchStats();
   }, []);
+
+  const [tableData, setTableData] = useState<GridRowsProp[]>([]);
+  const { handleGetTableDataRequest } = useHttp();
+
+  const [loading, setLoading] = useState(false);
+  const [rowCount, setRowCount] = useState(0);
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: 10,
+    page: 1,
+  });
+
+  const getTableData = async ({ search }: { search: string }) => {
+    try {
+      setLoading(true);
+      const result = await handleGetTableDataRequest({
+        path: "/logs",
+        page: paginationModel.page ?? 1,
+        size: paginationModel.pageSize ?? 10,
+        filter: { search },
+      });
+
+      if (result && result.items) {
+        setTableData(result.items);
+        setRowCount(result.totalItems);
+      }
+    } catch (error: any) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getTableData({ search: "" });
+  }, [paginationModel]);
+
+  const getLevelChipProps = (
+    raw: unknown,
+  ): { label: string; color: "error" | "warning" | "info" | "default" } => {
+    const level = String(raw ?? "").toLowerCase();
+    if (level === "error") {
+      return { label: "error", color: "error" };
+    }
+    if (level === "warn" || level === "warning") {
+      return { label: "warn", color: "warning" };
+    }
+    if (level === "info") {
+      return { label: "info", color: "info" };
+    }
+    return { label: String(raw ?? "—"), color: "default" };
+  };
+
+  const columns: GridColDef[] = [
+    {
+      field: "appLogId",
+      renderHeader: () => <strong>{"ID"}</strong>,
+      editable: true,
+    },
+    {
+      field: "appLogLevel",
+      width: 120,
+      renderHeader: () => <strong>{"Level"}</strong>,
+      editable: false,
+      renderCell: (params) => {
+        const { label, color } = getLevelChipProps(params.value);
+        return (
+          <Chip size="small" label={label} color={color} variant="outlined" />
+        );
+      },
+    },
+    {
+      field: "appLogMessage",
+      flex: 2,
+      renderHeader: () => <strong>{"Message"}</strong>,
+      editable: true,
+    },
+    {
+      field: "createdAt",
+      flex: 1,
+      renderHeader: () => <strong>{"Dipesan pada"}</strong>,
+      editable: true,
+      valueFormatter: (item) => convertTime(item.value),
+    },
+  ];
 
   return (
     <Box sx={{ pb: 2 }}>
@@ -172,6 +259,30 @@ export default function DashboardView() {
             </Card>
           </Grid>
         ))}
+      </Grid>
+      <Grid container spacing={2}>
+        <DataGrid
+          rows={tableData}
+          columns={columns}
+          editMode="row"
+          getRowId={(row: any) => row.appLogId}
+          sx={{
+            backgroundColor: "background.default",
+            p: 2,
+            ml: 2,
+            my: 5,
+          }}
+          autoHeight
+          initialState={{
+            pagination: { paginationModel: { pageSize: 2, page: 1 } },
+          }}
+          loading={loading}
+          pageSizeOptions={[2, 5, 10, 25]}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          rowCount={rowCount}
+          paginationMode="server"
+        />
       </Grid>
     </Box>
   );

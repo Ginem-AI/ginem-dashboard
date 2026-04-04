@@ -161,10 +161,6 @@ export default function DeviceCard({
         overflow: "hidden",
         transition:
           "box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease",
-        "&:hover": {
-          boxShadow: "0 8px 30px -12px rgba(0,0,0,0.18)",
-          transform: "translateY(-2px)",
-        },
       }}
     >
       <CardContent sx={{ p: 2.5, "&:last-child": { pb: 2.5 } }}>
@@ -281,66 +277,8 @@ export default function DeviceCard({
             />
           </Stack>
 
-          {/* Meta row */}
-          <Stack
-            direction="row"
-            alignItems="center"
-            flexWrap="wrap"
-            gap={1}
-            sx={{
-              py: 1,
-              px: 1.5,
-              borderRadius: 2,
-              bgcolor: "action.hover",
-            }}
-          >
-            <Typography variant="body2" fontWeight={600}>
-              {device?.deviceType || "—"}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              •
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              v{String(device?.deviceFirmwareVersion || "—").replace(/^v/i, "")}
-            </Typography>
-            {metadataEntries.length > 0 && (
-              <>
-                <Typography variant="caption" color="text.secondary">
-                  •
-                </Typography>
-                {metadataEntries.map(([k, v]) => (
-                  <Typography
-                    key={k}
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{
-                      bgcolor: "background.paper",
-                      px: 0.75,
-                      py: 0.25,
-                      borderRadius: 1,
-                    }}
-                  >
-                    {k}: {String(v)}
-                  </Typography>
-                ))}
-              </>
-            )}
-          </Stack>
-
-          <Typography variant="caption" color="text.secondary">
-            Created {convertTime(device?.createdAt ?? "") || "—"}
-          </Typography>
-
           {/* Area chart */}
           <Box>
-            <Typography
-              variant="subtitle2"
-              color="text.secondary"
-              fontWeight={700}
-              sx={{ mb: 1 }}
-            >
-              Device logs
-            </Typography>
             {logs.length > 0 ? (
               <Box
                 sx={{
