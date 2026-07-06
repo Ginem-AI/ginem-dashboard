@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "@/services/api/client";
-import { queryKeys } from "@/services/api/query-keys";
+import { apiClient } from "@/services/api";
+import { queryKeys } from "@/services/query-keys";
 import { useAppContext } from "@/context/app.context";
 import { useApiErrorHandler } from "./useApiErrorHandler";
 

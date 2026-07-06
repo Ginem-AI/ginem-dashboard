@@ -36,7 +36,13 @@ src/
 ├── hooks/                   # Global custom hooks
 │   └── api/                 # TanStack Query hooks
 ├── context/                 # React Context providers
-├── services/                # API layer (axios, client, query keys)
+├── services/                # API layer & domain services
+│   ├── api.ts                 # Axios instance + apiClient helpers
+│   ├── authService.ts         # Auth endpoints (login, register)
+│   ├── userService.ts         # User & admin endpoints
+│   ├── types.ts               # Shared API types
+│   ├── query-keys.ts          # TanStack Query cache keys
+│   └── query-client.ts        # QueryClient singleton
 ├── utils/                   # Helpers & validators
 ├── types/                   # TypeScript interfaces
 ├── styles/                  # Theme & global styles
@@ -54,7 +60,8 @@ src/
 | Route screens | `src/pages/<domain>/` |
 | Feature UI/logic | `src/features/<domain>/components/` |
 | Shared UI | `src/components/common/` |
-| API calls | `@/hooks/api` (TanStack Query) |
+| API calls | `@/hooks/api` (TanStack Query) + `@/services/*` |
+| Domain API | `authService`, `userService` in `@/services/` |
 | Route paths | `@/routes/routes` (`ROUTES` constant) |
 | Imports | `@/` alias → `src/` |
 

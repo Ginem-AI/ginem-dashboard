@@ -5,9 +5,9 @@ import {
   createTestQueryClient,
   renderHook,
 } from "@/test/test-utils";
-import { queryKeys } from "@/services/api/query-keys";
+import { queryKeys } from "@/services/query-keys";
 
-vi.mock("@/services/api/client", () => ({
+vi.mock("@/services/api", () => ({
   apiClient: {
     get: vi.fn(),
     getTableData: vi.fn(),
@@ -17,7 +17,7 @@ vi.mock("@/services/api/client", () => ({
   },
 }));
 
-import { apiClient } from "@/services/api/client";
+import { apiClient } from "@/services/api";
 import {
   useApiDeleteMutation,
   useApiPatchMutation,

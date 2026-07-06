@@ -17,7 +17,7 @@ import {
   Grid,
 } from "@mui/material";
 import { useApiGet, useApiPostMutation } from "@/hooks/api";
-import { apiClient } from "@/services/api/client";
+import { apiClient } from "@/services/api";
 import { useApiErrorHandler } from "@/hooks/api/useApiErrorHandler";
 
 type QRData = {

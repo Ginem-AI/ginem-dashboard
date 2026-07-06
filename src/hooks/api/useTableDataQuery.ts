@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "@/services/api/client";
-import { queryKeys } from "@/services/api/query-keys";
+import { apiClient } from "@/services/api";
+import { queryKeys } from "@/services/query-keys";
 import { useApiErrorHandler } from "./useApiErrorHandler";
 
 export function useTableDataQuery<T>(
