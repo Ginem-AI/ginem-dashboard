@@ -4,8 +4,8 @@ import CardContent from "@mui/material/CardContent";
 import Grid from "@mui/material/Grid";
 import Skeleton from "@mui/material/Skeleton";
 import Typography from "@mui/material/Typography";
-import { useEffect, useState } from "react";
-import { useHttp } from "../../hooks/http";
+import { useState } from "react";
+import { useApiGet, useTableDataQuery } from "../../hooks/api";
 import BreadCrumberStyle from "../../components/breadcrumb/Index";
 import { IconMenus } from "../../components/icon";
 import Alert from "@mui/material/Alert";
@@ -13,10 +13,9 @@ import DeviceHubOutlinedIcon from "@mui/icons-material/DeviceHubOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
 import AccessAlarmIcon from "@mui/icons-material/AccessAlarm";
-import ListLoggerView from "../logger/ListLoggerView";
 import { convertTime } from "../../utilities/convertTime";
 import { Chip } from "@mui/material";
-import { DataGrid, GridColDef, GridRowsProp } from "@mui/x-data-grid";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
 interface StatsData {
   devices: number;
@@ -42,7 +41,7 @@ const statCards: {
   },
   {
     key: "users",
-    label: "Users",
+    label: "Admins",
     icon: PeopleOutlinedIcon,
     color: "#10B981",
     bgGradient: "linear-gradient(135deg, #10B981 0%, #34D399 100%)",
@@ -64,71 +63,31 @@ const statCards: {
 ];
 
 export default function DashboardView() {
-  const { handleGetRequest } = useHttp();
-  const [stats, setStats] = useState<StatsData | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: statsResult,
+    isLoading: statsLoading,
+    isError: statsError,
+  } = useApiGet<StatsData>("/stats");
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const result = await handleGetRequest({ path: "/stats" });
-        if (result && typeof result === "object") {
-          setStats({
-            devices: result.devices ?? 0,
-            users: result.users ?? 0,
-            vectorIndexes: result.vectorIndexes ?? 0,
-            schedulerLogs: result.schedulerLogs ?? 0,
-            appLogs: result.appLogs ?? 0,
-          });
-        }
-      } catch (err: unknown) {
-        console.error(err);
-        setError(
-          err instanceof Error ? err.message : "Failed to load statistics.",
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStats();
-  }, []);
+  const stats = statsResult ?? null;
+  const error = statsError ? "Failed to load statistics." : null;
 
-  const [tableData, setTableData] = useState<GridRowsProp[]>([]);
-  const { handleGetTableDataRequest } = useHttp();
-
-  const [loading, setLoading] = useState(false);
-  const [rowCount, setRowCount] = useState(0);
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 10,
     page: 1,
   });
 
-  const getTableData = async ({ search }: { search: string }) => {
-    try {
-      setLoading(true);
-      const result = await handleGetTableDataRequest({
-        path: "/logs",
-        page: paginationModel.page ?? 1,
-        size: paginationModel.pageSize ?? 10,
-        filter: { search },
-      });
+  const { data: logsData, isFetching: logsLoading } = useTableDataQuery(
+    "/logs",
+    {
+      page: paginationModel.page,
+      size: paginationModel.pageSize,
+      filter: { search: "" },
+    },
+  );
 
-      if (result && result.items) {
-        setTableData(result.items);
-        setRowCount(result.totalItems);
-      }
-    } catch (error: any) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getTableData({ search: "" });
-  }, [paginationModel]);
+  const tableData = logsData?.items ?? [];
+  const rowCount = logsData?.totalItems ?? 0;
 
   const getLevelChipProps = (
     raw: unknown,
@@ -236,7 +195,7 @@ export default function DashboardView() {
                 >
                   <Icon sx={{ fontSize: 28 }} />
                 </Box>
-                {loading ? (
+                {statsLoading ? (
                   <>
                     <Skeleton variant="text" width={80} height={32} />
                     <Skeleton variant="text" width={40} height={24} />
@@ -276,7 +235,7 @@ export default function DashboardView() {
           initialState={{
             pagination: { paginationModel: { pageSize: 2, page: 1 } },
           }}
-          loading={loading}
+          loading={logsLoading}
           pageSizeOptions={[2, 5, 10, 25]}
           paginationModel={paginationModel}
           onPaginationModelChange={setPaginationModel}

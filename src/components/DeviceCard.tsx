@@ -53,18 +53,11 @@ export default function DeviceCard({
   onDetail,
   onEdit,
   onDelete,
-  convertTime,
 }: DeviceCardProps) {
   const [tokenCopied, setTokenCopied] = useState(false);
   const status = String(device?.deviceStatus ?? "offline");
   const statusColor = getStatusColor(status);
   const isOnline = statusColor === "success";
-
-  const metadata = device?.deviceMetadata;
-  const metadataEntries =
-    metadata && typeof metadata === "object" && Object.keys(metadata).length > 0
-      ? Object.entries(metadata)
-      : [];
 
   const logs = (device?.deviceLogs ?? []).slice();
   logs.sort(

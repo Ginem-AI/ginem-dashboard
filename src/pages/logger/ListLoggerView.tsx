@@ -1,53 +1,32 @@
 import Box from "@mui/material/Box";
 import {
-  GridRowsProp,
   DataGrid,
   GridColDef,
   GridToolbarContainer,
   GridToolbarExport,
 } from "@mui/x-data-grid";
-import { useEffect, useState } from "react";
-import { useHttp } from "../../hooks/http";
+import { useState } from "react";
+import { useTableDataQuery } from "../../hooks/api";
 import { Button, Chip, Stack, TextField } from "@mui/material";
 import BreadCrumberStyle from "../../components/breadcrumb/Index";
 import { IconMenus } from "../../components/icon";
 import { convertTime } from "../../utilities/convertTime";
 
 export default function ListLoggerView() {
-  const [tableData, setTableData] = useState<GridRowsProp[]>([]);
-  const { handleGetTableDataRequest } = useHttp();
-
-  const [loading, setLoading] = useState(false);
-  const [rowCount, setRowCount] = useState(0);
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 10,
     page: 1,
   });
 
-  const getTableData = async ({ search }: { search: string }) => {
-    try {
-      setLoading(true);
-      const result = await handleGetTableDataRequest({
-        path: "/logs",
-        page: paginationModel.page ?? 1,
-        size: paginationModel.pageSize ?? 10,
-        filter: { search },
-      });
+  const { data, isFetching, refetch } = useTableDataQuery("/logs", {
+    page: paginationModel.page,
+    size: paginationModel.pageSize,
+    filter: { search: "" },
+  });
 
-      if (result && result.items) {
-        setTableData(result.items);
-        setRowCount(result.totalItems);
-      }
-    } catch (error: any) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getTableData({ search: "" });
-  }, [paginationModel]);
+  const tableData = data?.items ?? [];
+  const rowCount = data?.totalItems ?? 0;
+  const loading = isFetching;
 
   const getLevelChipProps = (
     raw: unknown,
@@ -112,7 +91,7 @@ export default function ListLoggerView() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <Button variant="outlined" onClick={() => getTableData({ search })}>
+          <Button variant="outlined" onClick={() => refetch()}>
             Search
           </Button>
         </Stack>

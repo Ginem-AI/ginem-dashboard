@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SendIcon from "@mui/icons-material/Send";
 import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
-import { useHttp } from "../../hooks/http";
+import { useApiPostMutation } from "../../hooks/api";
 
 type ChatRole = "user" | "assistant" | "system";
 
@@ -32,7 +32,9 @@ const SUGGESTED_PROMPTS = [
 
 export default function ChatView() {
   const theme = useTheme();
-  const { handlePostRequest } = useHttp();
+  const chatMutation = useApiPostMutation<{
+    data?: { reply?: string; message?: string; content?: string };
+  }>();
   const navigate = useNavigate();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -56,7 +58,7 @@ export default function ChatView() {
     setSending(true);
 
     try {
-      const res = await handlePostRequest({
+      const res = await chatMutation.mutateAsync({
         path: "/chat",
         body: { message: trimmed },
       });

@@ -1,13 +1,17 @@
 import Box from "@mui/material/Box";
 import {
-  GridRowsProp,
   DataGrid,
   GridColDef,
   GridToolbarContainer,
   GridToolbarExport,
 } from "@mui/x-data-grid";
-import { useEffect, useState } from "react";
-import { useHttp } from "../../hooks/http";
+import { useState } from "react";
+import {
+  useApiDeleteMutation,
+  useApiPatchMutation,
+  useApiPostMutation,
+  useTableDataQuery,
+} from "../../hooks/api";
 import {
   Button,
   Stack,
@@ -38,19 +42,30 @@ interface AdminRow {
 }
 
 export default function ListAdminView() {
-  const [tableData, setTableData] = useState<GridRowsProp[] | any>([]);
-  const {
-    handleGetTableDataRequest,
-    handlePostRequest,
-    handleUpdateRequest,
-    handleRemoveRequest,
-  } = useHttp();
-
-  const [loading, setLoading] = useState(false);
-  const [rowCount, setRowCount] = useState(0);
+  const [searchFilter, setSearchFilter] = useState("");
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 10,
     page: 0,
+  });
+
+  const { data, isFetching } = useTableDataQuery<AdminRow>("/admins", {
+    page: paginationModel.page + 1,
+    size: paginationModel.pageSize,
+    filter: { search: searchFilter },
+  });
+
+  const tableData = data?.items ?? [];
+  const rowCount = data?.totalItems ?? 0;
+  const loading = isFetching;
+
+  const createAdmin = useApiPostMutation({
+    invalidateTablePaths: ["/admins"],
+  });
+  const updateAdmin = useApiPatchMutation({
+    invalidateTablePaths: ["/admins"],
+  });
+  const deleteAdmin = useApiDeleteMutation({
+    invalidateTablePaths: ["/admins"],
   });
 
   const [openCreateModal, setOpenCreateModal] = useState(false);
@@ -77,31 +92,6 @@ export default function ListAdminView() {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<AdminRow | null>(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
-
-  const getTableData = async ({ search }: { search: string }) => {
-    try {
-      setLoading(true);
-      const result = await handleGetTableDataRequest({
-        path: "/admins",
-        page: paginationModel.page + 1,
-        size: paginationModel.pageSize,
-        filter: { search },
-      });
-
-      if (result && result?.items) {
-        setTableData(result?.items);
-        setRowCount(result.totalItems ?? 0);
-      }
-    } catch (error: any) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getTableData({ search: "" });
-  }, []);
 
   const columns: GridColDef[] = [
     {
@@ -243,7 +233,7 @@ export default function ListAdminView() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <Button variant="outlined" onClick={() => getTableData({ search })}>
+          <Button variant="outlined" onClick={() => setSearchFilter(search)}>
             Search
           </Button>
         </Stack>
@@ -381,7 +371,7 @@ export default function ListAdminView() {
               setCreateError(null);
               setCreateFieldErrors({});
               try {
-                await handlePostRequest({
+                await createAdmin.mutateAsync({
                   path: "/admins",
                   body: {
                     userName: parsed.data.userName,
@@ -393,13 +383,11 @@ export default function ListAdminView() {
                 setCreateName("");
                 setCreateEmail("");
                 setCreatePassword("");
-                getTableData({ search: "" });
               } catch (error: any) {
                 console.error(error);
                 setCreateError(error?.message ?? "Gagal menambah admin.");
               } finally {
                 setCreateSubmitting(false);
-                getTableData({ search: "" });
               }
             }}
             disabled={createSubmitting}
@@ -509,12 +497,11 @@ export default function ListAdminView() {
                   body.userPassword = parsed.data.userPassword;
                 }
 
-                await handleUpdateRequest({
+                await updateAdmin.mutateAsync({
                   path: "/admins",
                   body,
                 });
                 setOpenEditModal(false);
-                getTableData({ search: "" });
               } catch (error: any) {
                 console.error(error);
                 setEditError(error?.message ?? "Gagal mengupdate admin.");
@@ -567,12 +554,11 @@ export default function ListAdminView() {
               if (!deleteTarget) return;
               setDeleteSubmitting(true);
               try {
-                await handleRemoveRequest({
+                await deleteAdmin.mutateAsync({
                   path: `/admins/${deleteTarget.userId}`,
                 });
                 setOpenDeleteModal(false);
                 setDeleteTarget(null);
-                getTableData({ search: "" });
               } catch (error) {
                 console.error(error);
               } finally {

@@ -1,6 +1,5 @@
 import Box from "@mui/material/Box";
-import { useEffect, useState } from "react";
-import { useHttp } from "../../hooks/http";
+import { useApiGet } from "../../hooks/api";
 import {
   Alert,
   Button,
@@ -26,33 +25,16 @@ import { IDevice, IDeviceValue } from "../../interfaces/Device";
 export default function DetailDeviceView() {
   const { deviceId } = useParams<{ deviceId: string }>();
   const navigate = useNavigate();
-  const { handleGetRequest } = useHttp();
 
-  const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [device, setDevice] = useState<IDevice | null>(null);
+  const {
+    data: device,
+    isLoading: loading,
+    isError,
+  } = useApiGet<IDevice>(`/devices/detail/${deviceId}`, {
+    enabled: Boolean(deviceId),
+  });
 
-  useEffect(() => {
-    if (!deviceId) return;
-    const fetchDetail = async () => {
-      try {
-        setLoading(true);
-        setErrorMessage(null);
-        const result = await handleGetRequest({
-          path: `/devices/detail/${deviceId}`,
-        });
-        if (result) setDevice(result);
-      } catch (error: unknown) {
-        console.error(error);
-        setErrorMessage(
-          error instanceof Error ? error.message : "Failed to load device.",
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDetail();
-  }, [deviceId]);
+  const errorMessage = isError ? "Failed to load device." : null;
 
   const getStatusColor = (
     status: string,

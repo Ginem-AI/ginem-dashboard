@@ -11,8 +11,7 @@ import {
 import BreadCrumberStyle from "../../components/breadcrumb/Index";
 import { IconMenus } from "../../components/icon";
 import { convertTime } from "../../utilities/convertTime";
-import { useHttp } from "../../hooks/http";
-import { useEffect, useState } from "react";
+import { useApiGet } from "../../hooks/api";
 import { IUser } from "../../interfaces/User";
 
 /* ============================================================
@@ -21,24 +20,7 @@ import { IUser } from "../../interfaces/User";
 const ProfileView = () => {
   const theme = useTheme();
 
-  const { handleGetRequest } = useHttp();
-
-  const [myProfile, setMyProfile] = useState<IUser>();
-
-  const handleGetMyProfile = async () => {
-    const result = await handleGetRequest({
-      path: "/my-profiles",
-    });
-
-    if (result) {
-      setMyProfile(result);
-    }
-    console.log(result);
-  };
-
-  useEffect(() => {
-    handleGetMyProfile();
-  }, []);
+  const { data: myProfile } = useApiGet<IUser>("/my-profiles");
 
   return (
     <Box>

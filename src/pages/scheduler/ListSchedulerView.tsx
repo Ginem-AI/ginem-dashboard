@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import { useEffect, useState } from "react";
-import { useHttp } from "../../hooks/http";
+import { useTableDataQuery } from "../../hooks/api";
 import {
   Alert,
   Button,
@@ -55,47 +55,28 @@ function NoRowsOverlay({
 }
 
 export default function ListSchedulerView() {
-  const [tableData, setTableData] = useState<any[]>([]);
-  const { handleGetTableDataRequest } = useHttp();
   const [searchParams, setSearchParams] = useSearchParams();
+  const search = searchParams.get("search") || "";
 
-  const [loading, setLoading] = useState(false);
-  const [rowCount, setRowCount] = useState(0);
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 25,
     page: 1,
   });
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  const getTableData = async ({ search }: { search: string }) => {
-    try {
-      setLoading(true);
-      setErrorMessage(null);
-      const result = await handleGetTableDataRequest({
-        path: "/scheduler-logs",
-        page: paginationModel.page,
-        size: paginationModel.pageSize,
-        filter: { search },
-      });
+  const { data, isFetching, isError, refetch, dataUpdatedAt } =
+    useTableDataQuery("/scheduler-logs", {
+      page: paginationModel.page,
+      size: paginationModel.pageSize,
+      filter: { search },
+    });
 
-      if (result && result?.items) {
-        setTableData(result?.items);
-        setRowCount(result.totalItems ?? 0);
-        setLastUpdated(new Date());
-      }
-    } catch (error: unknown) {
-      console.error(error);
-      setErrorMessage("Failed to load scheduler logs. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const search = searchParams.get("search") || "";
-    getTableData({ search });
-  }, [paginationModel, searchParams]);
+  const tableData = data?.items ?? [];
+  const rowCount = data?.totalItems ?? 0;
+  const loading = isFetching;
+  const lastUpdated = dataUpdatedAt ? new Date(dataUpdatedAt) : null;
+  const errorMessage = isError
+    ? "Failed to load scheduler logs. Please try again."
+    : null;
 
   function CustomToolbar() {
     const initialSearch = searchParams.get("search") || "";
@@ -131,7 +112,7 @@ export default function ListSchedulerView() {
             <span>
               <IconButton
                 size="small"
-                onClick={() => getTableData({ search })}
+                onClick={() => refetch()}
                 disabled={loading}
                 sx={{
                   border: 1,

@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useHttp } from "../../hooks/http";
+import { useApiPostMutation } from "../../hooks/api";
 
 interface RegisterPayload {
   userName: string;
@@ -18,7 +18,7 @@ interface RegisterPayload {
 }
 
 export default function RegisterView() {
-  const { handlePostRequest } = useHttp();
+  const registerMutation = useApiPostMutation();
   const navigate = useNavigate();
 
   const [userName, setUserName] = useState("");
@@ -36,7 +36,7 @@ export default function RegisterView() {
         userPassword,
       };
 
-      const res = await handlePostRequest({
+      const res = await registerMutation.mutateAsync({
         path: "/auth/register/users",
         body: payload,
       });

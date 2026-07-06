@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Typography,
@@ -16,7 +16,9 @@ import {
   MenuItem,
   Grid,
 } from "@mui/material";
-import { useHttp } from "../../hooks/http";
+import { useApiGet, useApiPostMutation } from "../../hooks/api";
+import { apiClient } from "../../api/client";
+import { useApiErrorHandler } from "../../hooks/api/useApiErrorHandler";
 
 type QRData = {
   connectionStatus: string;
@@ -31,15 +33,35 @@ type StatusData = {
 };
 
 export default function SettingsView() {
-  const [qrData, setQrData] = useState<QRData | null>(null);
-  const [status, setStatus] = useState<StatusData | null>(null);
   const [selectedModel, setSelectedModel] = useState("gpt-4o");
-
-  const [loadingQR, setLoadingQR] = useState(false);
-  const [loadingStatus, setLoadingStatus] = useState(true);
+  const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [connectLoading, setConnectLoading] = useState(false);
+  const onError = useApiErrorHandler();
 
-  const { handleGetRequest, handlePostRequest } = useHttp();
+  const {
+    data: status,
+    isLoading: loadingStatus,
+    refetch: refetchStatus,
+  } = useApiGet<StatusData>("/whatsapp/connection-status");
+
+  const isConnecting = connecting || status?.connectionStatus === "connecting";
+
+  const { data: qrData, isFetching: loadingQR } = useApiGet<QRData>(
+    "/whatsapp/connect?type=base64",
+    {
+      enabled: isConnecting,
+      refetchInterval: isConnecting ? 5000 : false,
+    },
+  );
+
+  const disconnect = useApiPostMutation({
+    invalidateGetPaths: ["/whatsapp/connection-status"],
+    onSuccess: () => {
+      setConnecting(false);
+      refetchStatus();
+    },
+  });
 
   const llmModels = [
     { provider: "OpenAI", models: ["gpt-4o", "gpt-4-turbo"] },
@@ -47,79 +69,38 @@ export default function SettingsView() {
     { provider: "Anthropic", models: ["claude-3-opus", "claude-3-sonnet"] },
   ];
 
-  const fetchStatus = async () => {
-    try {
-      setLoadingStatus(true);
-      const res = await handleGetRequest({
-        path: "/whatsapp/connection-status",
-      });
-      setStatus(res);
-    } catch {
-      setError("Failed to load connection status");
-    } finally {
-      setLoadingStatus(false);
-    }
-  };
-
   const handleConnect = async () => {
     try {
-      setLoadingQR(true);
+      setConnectLoading(true);
       setError(null);
-
-      const res = await handleGetRequest({
-        path: "/whatsapp/connect?type=base64",
-      });
-
-      setQrData(res);
-      setStatus((prev) => ({
-        ...prev!,
-        connectionStatus: "connecting",
-      }));
-    } catch {
+      await apiClient.get<QRData>("/whatsapp/connect?type=base64");
+      setConnecting(true);
+      refetchStatus();
+    } catch (err) {
+      onError(err);
       setError("Failed to connect");
     } finally {
-      setLoadingQR(false);
+      setConnectLoading(false);
     }
   };
 
   const handleDisconnect = async () => {
     try {
-      setLoadingQR(true);
-      await handlePostRequest({
+      setError(null);
+      await disconnect.mutateAsync({
         path: "/whatsapp/disconnect",
         body: {},
       });
-
-      setQrData(null);
-      await fetchStatus();
     } catch {
       setError("Failed to disconnect");
-    } finally {
-      setLoadingQR(false);
     }
   };
 
-  useEffect(() => {
-    fetchStatus();
-  }, []);
-
-  useEffect(() => {
-    if (status?.connectionStatus !== "connecting") return;
-
-    const interval = setInterval(async () => {
-      try {
-        const res = await handleGetRequest({
-          path: "/whatsapp/connect?type=base64",
-        });
-        setQrData(res);
-      } catch {}
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [status?.connectionStatus]);
-
   const getStatusColor = () => {
-    switch (status?.connectionStatus) {
+    const connectionStatus = isConnecting
+      ? "connecting"
+      : status?.connectionStatus;
+    switch (connectionStatus) {
       case "connected":
         return "success";
       case "connecting":
@@ -129,6 +110,13 @@ export default function SettingsView() {
     }
   };
 
+  const displayStatus = isConnecting
+    ? "connecting"
+    : (status?.connectionStatus ?? "disconnected");
+
+  const showQrLoading =
+    connectLoading || (isConnecting && loadingQR && !qrData);
+
   return (
     <Box marginBottom={5}>
       <Typography variant="h4" fontWeight={700} mb={4}>
@@ -136,7 +124,6 @@ export default function SettingsView() {
       </Typography>
 
       <Grid container spacing={3}>
-        {/* ================= WHATSAPP ================= */}
         <Grid item xs={12} md={6}>
           <Card sx={{ borderRadius: 4, height: "100%" }}>
             <CardContent sx={{ p: 4 }}>
@@ -144,15 +131,16 @@ export default function SettingsView() {
                 WhatsApp Connection
               </Typography>
 
-              {/* Status */}
               {loadingStatus ? (
                 <CircularProgress size={20} />
               ) : (
                 status && (
                   <Stack spacing={1} mb={2}>
                     <Chip
-                      label={status.connectionStatus.toUpperCase()}
-                      color={getStatusColor() as any}
+                      label={displayStatus.toUpperCase()}
+                      color={
+                        getStatusColor() as "default" | "success" | "warning"
+                      }
                     />
 
                     {status.lastDisconnectReason && (
@@ -166,7 +154,6 @@ export default function SettingsView() {
 
               <Divider sx={{ mb: 3 }} />
 
-              {/* QR */}
               <Box
                 display="flex"
                 justifyContent="center"
@@ -179,9 +166,9 @@ export default function SettingsView() {
                   backgroundColor: "background.default",
                 }}
               >
-                {loadingQR ? (
+                {showQrLoading ? (
                   <CircularProgress />
-                ) : qrData && status?.connectionStatus === "connecting" ? (
+                ) : qrData && isConnecting ? (
                   <Box
                     component="img"
                     src={`data:${qrData.mimeType};base64,${qrData.qrImageBase64}`}
@@ -196,14 +183,15 @@ export default function SettingsView() {
 
               {error && <Alert severity="error">{error}</Alert>}
 
-              {/* Actions */}
               <Stack direction="row" spacing={2} mt={2}>
                 <Button
                   fullWidth
                   variant="contained"
                   onClick={handleConnect}
                   disabled={
-                    loadingQR || status?.connectionStatus === "connected"
+                    connectLoading ||
+                    disconnect.isPending ||
+                    status?.connectionStatus === "connected"
                   }
                 >
                   Connect
@@ -215,7 +203,9 @@ export default function SettingsView() {
                   color="error"
                   onClick={handleDisconnect}
                   disabled={
-                    loadingQR || status?.connectionStatus !== "connected"
+                    connectLoading ||
+                    disconnect.isPending ||
+                    status?.connectionStatus !== "connected"
                   }
                 >
                   Disconnect
@@ -225,7 +215,6 @@ export default function SettingsView() {
           </Card>
         </Grid>
 
-        {/* ================= LLM ================= */}
         <Grid item xs={12} md={6}>
           <Card sx={{ borderRadius: 4, height: "100%" }}>
             <CardContent sx={{ p: 4 }}>

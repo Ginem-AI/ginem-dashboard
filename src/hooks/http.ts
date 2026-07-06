@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CONFIGS } from "../configs";
-import { AppContextTypes, useAppContext } from "../context/app.context";
-import { ServiceHttp } from "../services/api";
+import { useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "../api/client";
+import { queryKeys } from "../api/queryKeys";
+import { useApiErrorHandler } from "./api/useApiErrorHandler";
 
 interface PostRequestTypes {
   path: string;
@@ -36,93 +37,79 @@ export interface HttpRequestTypes {
   handleGetTableDataRequest: (value: GetTabelDataRequestTypes) => any;
 }
 
+/**
+ * @deprecated Prefer `useApiGet`, `useTableDataQuery`, and mutation hooks from `hooks/api`.
+ */
 export const useHttp = () => {
-  const { setAppAlert }: AppContextTypes = useAppContext();
-  const serviceHttp = new ServiceHttp();
+  const onError = useApiErrorHandler();
+  const queryClient = useQueryClient();
 
   const handleGetRequest = async ({ path }: GetRequestTypes) => {
     try {
-      const result = await serviceHttp.get({
-        path,
+      return await queryClient.fetchQuery({
+        queryKey: queryKeys.get(path),
+        queryFn: () => apiClient.get(path),
       });
-      return result;
     } catch (error: any) {
-      console.error(error?.message);
-      setAppAlert({
-        isDisplayAlert: true,
-        message: error?.message,
-        alertType: "error",
-      });
+      onError(error);
     }
   };
 
   const handlePostRequest = async ({ path, body }: PostRequestTypes) => {
     try {
-      const result = await serviceHttp.post({
-        path,
-        body,
+      const result = await apiClient.post(path, body);
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.tableRoot(path),
       });
       return result;
     } catch (error: any) {
-      console.error(error?.message);
-      setAppAlert({
-        isDisplayAlert: true,
-        message: error?.message,
-        alertType: "error",
-      });
+      onError(error);
     }
   };
 
   const handleRemoveRequest = async ({ path }: RemoveRequestTypes) => {
     try {
-      const result = await serviceHttp.remove({
-        path,
+      const result = await apiClient.remove(path);
+      const basePath = "/" + path.split("/").filter(Boolean)[0];
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.tableRoot(basePath),
       });
       return result;
     } catch (error: any) {
-      console.error(error?.message);
-      setAppAlert({
-        isDisplayAlert: true,
-        message: error?.message,
-        alertType: "error",
-      });
+      onError(error);
     }
   };
 
   const handleUpdateRequest = async ({ path, body }: UpdateRequestTypes) => {
     try {
-      const result = await serviceHttp.patch({
-        path,
-        body,
+      const result = await apiClient.patch(path, body);
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.tableRoot(path),
       });
       return result;
     } catch (error: any) {
-      console.error(error?.message);
-      setAppAlert({
-        isDisplayAlert: true,
-        message: error?.message,
-        alertType: "error",
-      });
+      onError(error);
     }
   };
 
   const handleGetTableDataRequest = async (props: GetTabelDataRequestTypes) => {
+    const filterKey = JSON.stringify(props.filter ?? {});
+    const page = props.page || 1;
+    const size = props.size || 10;
+
     try {
-      const result = await serviceHttp.getTableData({
-        url: CONFIGS.baseUrl + props.path,
-        pagination: true,
-        page: props.page || 1,
-        size: props.size || 10,
-        filters: props.filter,
+      return await queryClient.fetchQuery({
+        queryKey: queryKeys.table(props.path, { page, size, filterKey }),
+        queryFn: () =>
+          apiClient.getTableData({
+            path: props.path,
+            page,
+            size,
+            filter: props.filter,
+          }),
       });
-      return result;
     } catch (error: any) {
-      console.error(error?.message);
-      setAppAlert({
-        isDisplayAlert: true,
-        message: error?.message,
-        alertType: "error",
-      });
+      onError(error);
     }
   };
 
@@ -130,7 +117,7 @@ export const useHttp = () => {
     handleGetRequest,
     handlePostRequest,
     handleRemoveRequest,
-    handleUpdateRequest,
+    handleUpdateRequest: handleUpdateRequest,
     handleGetTableDataRequest,
   };
 };

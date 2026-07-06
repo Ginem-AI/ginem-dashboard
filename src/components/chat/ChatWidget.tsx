@@ -15,7 +15,7 @@ import {
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
-import { useHttp } from "../../hooks/http";
+import { useApiPostMutation } from "../../hooks/api";
 
 type ChatRole = "user" | "assistant" | "system";
 
@@ -28,7 +28,9 @@ interface ChatMessage {
 const drawerWidth = { xs: "100%", sm: 420, md: 440 };
 
 export function ChatWidget() {
-  const { handlePostRequest } = useHttp();
+  const chatMutation = useApiPostMutation<{
+    data?: { reply?: string; message?: string; content?: string };
+  }>();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -53,7 +55,7 @@ export function ChatWidget() {
     setSending(true);
 
     try {
-      const res = await handlePostRequest({
+      const res = await chatMutation.mutateAsync({
         path: "/chat",
         body: {
           message: trimmed,
@@ -101,10 +103,9 @@ export function ChatWidget() {
           sx={{
             position: "fixed",
             bottom: { xs: 5, md: 8 },
-            left: "50%",
+            right: "0%",
             transform: "translateX(-50%)",
             zIndex: (theme) => theme.zIndex.drawer + 1,
-            px: 2,
           }}
         >
           <Tooltip title="Buka chat">
@@ -119,7 +120,6 @@ export function ChatWidget() {
                 display: "flex",
                 alignItems: "center",
                 gap: 1.5,
-                width: { xs: "100%", sm: 360, md: 420 },
                 maxWidth: "calc(100vw - 24px)",
                 background:
                   theme.palette.mode === "dark"
@@ -141,7 +141,6 @@ export function ChatWidget() {
                   width: 30,
                   height: 30,
                   bgcolor: "primary.main",
-                  boxShadow: "0 0 0 2px rgba(15,23,42,0.75)",
                 }}
               >
                 <ChatBubbleOutlineIcon
@@ -161,51 +160,6 @@ export function ChatWidget() {
                   }}
                 >
                   Ask Ginem
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: 13,
-                    color: (theme) =>
-                      theme.palette.mode === "dark" ? "#e5f0ff" : "#0f172a",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  Tanyakan apa pun tentang Ginem
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  px: 1,
-                  py: 0.25,
-                  borderRadius: 999,
-                  border: "1px solid rgba(148,163,184,0.6)",
-                  display: { xs: "none", sm: "flex" },
-                  alignItems: "center",
-                  gap: 0.5,
-                }}
-              >
-                <Typography
-                  variant="caption"
-                  sx={{
-                    fontFamily: "monospace",
-                    fontSize: 10,
-                    color: "text.secondary",
-                  }}
-                >
-                  Shift
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    fontFamily: "monospace",
-                    fontSize: 10,
-                    color: "text.secondary",
-                  }}
-                >
-                  /
                 </Typography>
               </Box>
             </Paper>

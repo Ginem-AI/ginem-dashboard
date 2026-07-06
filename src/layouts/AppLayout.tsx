@@ -104,7 +104,6 @@ interface AppBarProps extends MuiAppBarProps {
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
 })<AppBarProps>(({ theme, open }) => {
-  const t = tokens[theme.palette.mode];
   const isDark = theme.palette.mode === "dark";
 
   return {

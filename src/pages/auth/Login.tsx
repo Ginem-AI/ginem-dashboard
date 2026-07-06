@@ -9,12 +9,11 @@ import {
   Stack,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useHttp } from "../../hooks/http";
+import { useApiPostMutation } from "../../hooks/api";
 import { useToken } from "../../hooks/token";
-import { IUserLoginRequestModel } from "../../models/userModel";
 
 export default function LoginView() {
-  const { handlePostRequest } = useHttp();
+  const loginMutation = useApiPostMutation<{ data: { accessToken: string } }>();
   const { setToken } = useToken();
   const navigate = useNavigate();
 
@@ -23,12 +22,12 @@ export default function LoginView() {
 
   const handleSubmit = async () => {
     try {
-      const payload: IUserLoginRequestModel = {
+      const payload = {
         userEmail,
         userPassword,
       };
 
-      const result = await handlePostRequest({
+      const result = await loginMutation.mutateAsync({
         path: "/auth/login",
         body: payload,
       });

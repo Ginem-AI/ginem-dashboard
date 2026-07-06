@@ -1,50 +1,62 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from 'react'
-import { useHttp } from './http'
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { apiClient } from "../api/client";
+import { queryKeys } from "../api/queryKeys";
 
 export const usePagenation = () => {
-  const { handleGetTableDataRequest } = useHttp()
+  const queryClient = useQueryClient();
 
-  const [rowsPerPage, setRowsPerPage] = useState(5)
-  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [page, setPage] = useState(0);
 
   const handleChangePage = (event: unknown, newPage: number) => {
-    console.log(event)
-    setPage(newPage)
-  }
+    console.log(event);
+    setPage(newPage);
+  };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(+event.target.value)
-    setPage(0)
-  }
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
 
-  const getTableData = async ({ path, filter }: { path: string; filter?: any }) => {
+  const getTableData = async ({
+    path,
+    filter,
+  }: {
+    path: string;
+    filter?: any;
+  }) => {
     try {
-      console.log(filter)
-      const result = await handleGetTableDataRequest({
-        path: path,
-        page: page ?? 0,
-        size: rowsPerPage ?? 10,
-        filter: {
-          ...filter
-        }
-      })
-      if (result) {
-        return result
-      } else {
-        return []
-      }
+      const filterKey = JSON.stringify(filter ?? {});
+      const apiPage = page ?? 0;
+      const size = rowsPerPage ?? 10;
+
+      const result = await queryClient.fetchQuery({
+        queryKey: queryKeys.table(path, { page: apiPage, size, filterKey }),
+        queryFn: () =>
+          apiClient.getTableData({
+            path,
+            page: apiPage,
+            size,
+            filter,
+          }),
+      });
+
+      return result ?? [];
     } catch (error: any) {
-      console.log(error)
-      return []
+      console.log(error);
+      return [];
     }
-  }
+  };
 
   return {
     getTableData,
     page,
     rowsPerPage,
     handleChangePage,
-    handleChangeRowsPerPage
-  }
-}
+    handleChangeRowsPerPage,
+  };
+};
