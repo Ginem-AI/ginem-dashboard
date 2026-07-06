@@ -5,7 +5,7 @@ import {
   useApiPatchMutation,
   useApiPostMutation,
   useTableDataQuery,
-} from "../../hooks/api";
+} from "@/hooks/api";
 import {
   Alert,
   Button,
@@ -19,22 +19,24 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import BreadCrumberStyle from "../../components/breadcrumb/Index";
-import { IconMenus } from "../../components/icon";
-import DeviceCard, { DeviceCardItem } from "../../components/DeviceCard";
-import { convertTime } from "../../utilities/convertTime";
+import BreadCrumberStyle from "@/components/common/Breadcrumb";
+import { IconMenus } from "@/assets/icons";
+import DeviceCard, {
+  DeviceCardItem,
+} from "@/features/devices/components/DeviceCard";
+import { convertTime } from "@/utils/convertTime";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import CloseIcon from "@mui/icons-material/Close";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import AddIcon from "@mui/icons-material/Add";
-import { IDevice } from "../../interfaces/Device";
+import { IDevice } from "@/types/Device";
 import FormDevice, {
   DeviceCreateFormState,
   DeviceEditFormState,
-} from "./FormDevice";
-import DeleteModalDevice from "./DeleteModalDevice";
+} from "@/features/devices/components/FormDevice";
+import DeleteModalDevice from "@/features/devices/components/DeleteModalDevice";
 
 function NoRowsOverlay({
   title,

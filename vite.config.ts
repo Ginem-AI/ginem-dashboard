@@ -1,9 +1,15 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react-swc";
+import path from "node:path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
   build: {
     outDir: "./build",
     emptyOutDir: true,
@@ -15,12 +21,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
-      include: [
-        "src/api/**",
-        "src/hooks/api/**",
-        "src/utilities/**",
-        "src/validations/**",
-      ],
+      include: ["src/services/api/**", "src/hooks/api/**", "src/utils/**"],
     },
   },
 });

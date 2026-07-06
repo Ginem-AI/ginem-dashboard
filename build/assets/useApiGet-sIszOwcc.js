@@ -1,0 +1,1 @@
+import{u as t}from"./useQuery-elE-MCgJ.js";import{ay as y,az as c,aA as l}from"./index-x1QGagTr.js";function m(e,r){const u=y();return t({queryKey:c.get(e),queryFn:async()=>{try{return await l.get(e)}catch(a){throw u(a),a}},enabled:(r==null?void 0:r.enabled)??!0,refetchInterval:r==null?void 0:r.refetchInterval})}export{m as u};

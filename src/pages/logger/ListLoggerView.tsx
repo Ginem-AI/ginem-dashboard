@@ -6,11 +6,11 @@ import {
   GridToolbarExport,
 } from "@mui/x-data-grid";
 import { useState } from "react";
-import { useTableDataQuery } from "../../hooks/api";
+import { useTableDataQuery } from "@/hooks/api";
 import { Button, Chip, Stack, TextField } from "@mui/material";
-import BreadCrumberStyle from "../../components/breadcrumb/Index";
-import { IconMenus } from "../../components/icon";
-import { convertTime } from "../../utilities/convertTime";
+import BreadCrumberStyle from "@/components/common/Breadcrumb";
+import { IconMenus } from "@/assets/icons";
+import { convertTime } from "@/utils/convertTime";
 
 export default function ListLoggerView() {
   const [paginationModel, setPaginationModel] = useState({

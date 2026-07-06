@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import { useApiGet } from "../../hooks/api";
+import { useApiGet } from "@/hooks/api";
 import {
   Alert,
   Button,
@@ -15,12 +15,12 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import BreadCrumberStyle from "../../components/breadcrumb/Index";
-import { IconMenus } from "../../components/icon";
-import { convertTime } from "../../utilities/convertTime";
+import BreadCrumberStyle from "@/components/common/Breadcrumb";
+import { IconMenus } from "@/assets/icons";
+import { convertTime } from "@/utils/convertTime";
 import { useNavigate, useParams } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { IDevice, IDeviceValue } from "../../interfaces/Device";
+import { IDevice, IDeviceValue } from "@/types/Device";
 
 export default function DetailDeviceView() {
   const { deviceId } = useParams<{ deviceId: string }>();

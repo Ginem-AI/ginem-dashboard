@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import { useEffect, useState } from "react";
-import { useTableDataQuery } from "../../hooks/api";
+import { useTableDataQuery } from "@/hooks/api";
 import {
   Alert,
   Button,
@@ -21,9 +21,10 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import BreadCrumberStyle from "../../components/breadcrumb/Index";
-import { IconMenus } from "../../components/icon";
-import { convertTime } from "../../utilities/convertTime";
+import BreadCrumberStyle from "@/components/common/Breadcrumb";
+import { IconMenus } from "@/assets/icons";
+import { convertTime } from "@/utils/convertTime";
+import { ROUTES } from "@/routes/routes";
 import { useSearchParams } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -190,7 +191,7 @@ export default function ListSchedulerView() {
         navigation={[
           {
             label: "Scheduler",
-            link: "/scheduller",
+            link: ROUTES.scheduler,
             icon: <IconMenus.schedule fontSize="small" />,
           },
         ]}

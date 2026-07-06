@@ -11,7 +11,7 @@ import {
   useApiPatchMutation,
   useApiPostMutation,
   useTableDataQuery,
-} from "../../hooks/api";
+} from "@/hooks/api";
 import {
   Button,
   Stack,
@@ -24,13 +24,13 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import BreadCrumberStyle from "../../components/breadcrumb/Index";
-import { IconMenus } from "../../components/icon";
-import { convertTime } from "../../utilities/convertTime";
+import BreadCrumberStyle from "@/components/common/Breadcrumb";
+import { IconMenus } from "@/assets/icons";
+import { convertTime } from "@/utils/convertTime";
 import {
   adminCreateSchema,
   AdminCreateValues,
-} from "../../validations/adminSchema";
+} from "@/utils/validators/adminSchema";
 
 interface AdminRow {
   userId: number;

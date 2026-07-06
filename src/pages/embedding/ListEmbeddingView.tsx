@@ -4,7 +4,7 @@ import {
   useApiDeleteMutation,
   useApiPostMutation,
   useTableDataQuery,
-} from "../../hooks/api";
+} from "@/hooks/api";
 import {
   Alert,
   Button,
@@ -31,9 +31,9 @@ import {
   GridColDef,
   GridPaginationModel,
 } from "@mui/x-data-grid";
-import BreadCrumberStyle from "../../components/breadcrumb/Index";
-import { IconMenus } from "../../components/icon";
-import { convertTime } from "../../utilities/convertTime";
+import BreadCrumberStyle from "@/components/common/Breadcrumb";
+import { IconMenus } from "@/assets/icons";
+import { convertTime } from "@/utils/convertTime";
 import { useSearchParams } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -44,9 +44,9 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import CircularProgress from "@mui/material/CircularProgress";
-import { useAppContext } from "../../context/app.context";
-import { IIndexing } from "../../interfaces/Indexing";
-import DeleteModalIndexing from "./DeleteModalIndexing";
+import { useAppContext } from "@/context/app.context";
+import { IIndexing } from "@/types/Indexing";
+import DeleteModalIndexing from "@/features/embedding/components/DeleteModalIndexing";
 
 const INDEX_SOURCE_OPTIONS = ["text", "pdf", "json"] as const;
 const CONTENT_PREVIEW_MAX = 200;

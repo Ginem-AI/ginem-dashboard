@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "../../api/client";
-import { queryKeys } from "../../api/queryKeys";
-import { useAppContext } from "../../context/app.context";
+import { apiClient } from "@/services/api/client";
+import { queryKeys } from "@/services/api/query-keys";
+import { useAppContext } from "@/context/app.context";
 import { useApiErrorHandler } from "./useApiErrorHandler";
 
 type MutationOptions<TData> = {

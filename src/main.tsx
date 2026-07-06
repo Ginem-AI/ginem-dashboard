@@ -1,15 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
-import { AppProvider } from "./context/app.context";
-import { QueryProvider } from "./providers/QueryProvider";
+import "@/styles/globals.css";
+import App from "@/App";
+import { AppProviders } from "@/providers/app-providers";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <QueryProvider>
-      <AppProvider>
-        <App />
-      </AppProvider>
-    </QueryProvider>
+    <AppProviders>
+      <App />
+    </AppProviders>
   </React.StrictMode>,
 );
