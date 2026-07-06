@@ -383,9 +383,13 @@ export default function ListAdminView() {
                 setCreateName("");
                 setCreateEmail("");
                 setCreatePassword("");
-              } catch (error: any) {
+              } catch (error: unknown) {
                 console.error(error);
-                setCreateError(error?.message ?? "Gagal menambah admin.");
+                setCreateError(
+                  error instanceof Error
+                    ? error.message
+                    : "Gagal menambah admin.",
+                );
               } finally {
                 setCreateSubmitting(false);
               }
@@ -488,7 +492,12 @@ export default function ListAdminView() {
               setEditError(null);
               setEditFieldErrors({});
               try {
-                const body: any = {
+                const body: {
+                  userId: number;
+                  userName: string;
+                  userEmail: string;
+                  userPassword?: string;
+                } = {
                   userId: editTarget.userId,
                   userName: parsed.data.userName,
                   userEmail: parsed.data.userEmail,
@@ -502,9 +511,13 @@ export default function ListAdminView() {
                   body,
                 });
                 setOpenEditModal(false);
-              } catch (error: any) {
+              } catch (error: unknown) {
                 console.error(error);
-                setEditError(error?.message ?? "Gagal mengupdate admin.");
+                setEditError(
+                  error instanceof Error
+                    ? error.message
+                    : "Gagal mengupdate admin.",
+                );
               } finally {
                 setEditSubmitting(false);
               }
@@ -531,7 +544,7 @@ export default function ListAdminView() {
         <DialogContent>
           <Typography>
             {deleteTarget
-              ? `Yakin ingin menghapus admin \"${deleteTarget.userName}\" (${deleteTarget.userEmail})?`
+              ? `Yakin ingin menghapus admin "${deleteTarget.userName}" (${deleteTarget.userEmail})?`
               : ""}
           </Typography>
         </DialogContent>

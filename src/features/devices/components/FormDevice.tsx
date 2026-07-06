@@ -98,7 +98,7 @@ export default function FormDevice({
             fullWidth
             value={form.deviceName}
             onChange={(e) =>
-              setForm((prev: any) => ({ ...prev, deviceName: e.target.value }))
+              setForm((prev) => ({ ...prev, deviceName: e.target.value }))
             }
             placeholder="e.g. Sensor Kebakaran"
           />
@@ -155,7 +155,7 @@ export default function FormDevice({
               value={form.deviceFirmwareVersion}
               label="Firmware Version"
               onChange={(e) =>
-                setForm((prev: any) => ({
+                setForm((prev) => ({
                   ...prev,
                   deviceFirmwareVersion: String(e.target.value),
                 }))
@@ -187,7 +187,7 @@ export default function FormDevice({
             fullWidth
             value={form.deviceMetadataRoom}
             onChange={(e) =>
-              setForm((prev: any) => ({
+              setForm((prev) => ({
                 ...prev,
                 deviceMetadataRoom: e.target.value,
               }))
@@ -200,7 +200,7 @@ export default function FormDevice({
             fullWidth
             value={form.deviceMetadataVoltage}
             onChange={(e) =>
-              setForm((prev: any) => ({
+              setForm((prev) => ({
                 ...prev,
                 deviceMetadataVoltage: e.target.value,
               }))

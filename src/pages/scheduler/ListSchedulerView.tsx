@@ -83,9 +83,11 @@ export default function ListSchedulerView() {
     const initialSearch = searchParams.get("search") || "";
     const [search, setSearch] = useState<string>(initialSearch);
 
+    const currentSearch = searchParams.get("search") || "";
+
     useEffect(() => {
-      setSearch(searchParams.get("search") || "");
-    }, [searchParams]);
+      setSearch(currentSearch);
+    }, [currentSearch]);
 
     const handleSearch = () => {
       const newSearchParams = new URLSearchParams();
@@ -248,7 +250,7 @@ export default function ListSchedulerView() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {tableData.map((row: any) => {
+                  {tableData.map((row) => {
                     const status = String(row?.status ?? "pending");
                     return (
                       <TableRow

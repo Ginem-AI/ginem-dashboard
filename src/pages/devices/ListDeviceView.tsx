@@ -288,9 +288,11 @@ export default function ListDeviceView() {
 
     const [search, setSearch] = useState<string>(initialSearch);
 
+    const currentSearch = searchParams.get("search") || "";
+
     useEffect(() => {
-      setSearch(searchParams.get("search") || "");
-    }, [searchParams]);
+      setSearch(currentSearch);
+    }, [currentSearch]);
 
     const handleSearch = () => {
       const newSearchParams = new URLSearchParams();

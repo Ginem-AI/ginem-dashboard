@@ -149,7 +149,7 @@ export default function DetailDeviceView() {
                     Updated at
                   </Typography>
                   <Typography variant="body2">
-                    {convertTime(device?.updatedAt!) || "—"}
+                    {device?.updatedAt ? convertTime(device.updatedAt) : "—"}
                   </Typography>
                 </Box>
               </Stack>

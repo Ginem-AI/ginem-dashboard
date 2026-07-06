@@ -208,7 +208,14 @@ export default function ListEmbeddingView() {
       filter: { search: searchParamKey },
     });
 
-  const tableData = data?.items ?? [];
+  const rows = useMemo(
+    () =>
+      (data?.items ?? []).map((row: IIndexing) => ({
+        ...row,
+        id: row.indexingId,
+      })),
+    [data?.items],
+  );
   const rowCount = data?.totalItems ?? 0;
   const loading = isFetching;
   const lastUpdated = dataUpdatedAt ? new Date(dataUpdatedAt) : null;
@@ -427,15 +434,6 @@ export default function ListEmbeddingView() {
       },
     ],
     [handleOpenContentDetail, handleOpenDeleteModal],
-  );
-
-  const rows = useMemo(
-    () =>
-      tableData.map((row: IIndexing) => ({
-        ...row,
-        id: row.indexingId,
-      })),
-    [tableData],
   );
 
   return (

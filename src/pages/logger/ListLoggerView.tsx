@@ -125,7 +125,7 @@ export default function ListLoggerView() {
           rows={tableData}
           columns={columns}
           editMode="row"
-          getRowId={(row: any) => row.appLogId}
+          getRowId={(row) => row.appLogId}
           sx={{ backgroundColor: "background.default", p: 2 }}
           autoHeight
           initialState={{

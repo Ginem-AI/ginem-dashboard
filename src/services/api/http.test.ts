@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { CONFIGS } from "@/config/env";
 import { getHeaders } from "@/services/api/http";
 
