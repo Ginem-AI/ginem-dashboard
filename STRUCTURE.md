@@ -34,12 +34,21 @@ src/
 │   ├── AppRoutes.tsx
 │   └── routes.ts
 ├── hooks/                   # Global custom hooks
-│   └── api/                 # TanStack Query hooks
+│   ├── api/                 # Generic TanStack Query hooks
+│   └── services/            # Domain hooks (useDevices, useAdmins, …)
 ├── context/                 # React Context providers
 ├── services/                # API layer & domain services
 │   ├── api.ts                 # Axios instance + apiClient helpers
 │   ├── authService.ts         # Auth endpoints (login, register)
-│   ├── userService.ts         # User & admin endpoints
+│   ├── adminService.ts        # Admin CRUD
+│   ├── profileService.ts      # User profile
+│   ├── deviceService.ts       # Device CRUD & detail
+│   ├── dashboardService.ts    # Stats & logs
+│   ├── loggerService.ts       # App logs
+│   ├── schedulerService.ts    # Scheduler logs
+│   ├── embeddingService.ts    # Vector indexing
+│   ├── settingsService.ts     # WhatsApp & settings
+│   ├── chatService.ts         # Chat API
 │   ├── types.ts               # Shared API types
 │   ├── query-keys.ts          # TanStack Query cache keys
 │   └── query-client.ts        # QueryClient singleton
@@ -60,8 +69,8 @@ src/
 | Route screens | `src/pages/<domain>/` |
 | Feature UI/logic | `src/features/<domain>/components/` |
 | Shared UI | `src/components/common/` |
-| API calls | `@/hooks/api` (TanStack Query) + `@/services/*` |
-| Domain API | `authService`, `userService` in `@/services/` |
+| API calls | `@/hooks/services` (domain) + `@/hooks/api` (generic) |
+| Domain API | `*Service.ts` in `@/services/` — one service per page/domain |
 | Route paths | `@/routes/routes` (`ROUTES` constant) |
 | Imports | `@/` alias → `src/` |
 

@@ -13,7 +13,8 @@ import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SendIcon from "@mui/icons-material/Send";
 import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
-import { useApiPostMutation } from "@/hooks/api";
+import { useChatMutation } from "@/hooks/services";
+import { parseChatReply } from "@/services/chatService";
 
 type ChatRole = "user" | "assistant" | "system";
 
@@ -32,9 +33,7 @@ const SUGGESTED_PROMPTS = [
 
 export default function ChatView() {
   const theme = useTheme();
-  const chatMutation = useApiPostMutation<{
-    data?: { reply?: string; message?: string; content?: string };
-  }>();
+  const chatMutation = useChatMutation();
   const navigate = useNavigate();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -58,14 +57,9 @@ export default function ChatView() {
     setSending(true);
 
     try {
-      const res = await chatMutation.mutateAsync({
-        path: "/chat",
-        body: { message: trimmed },
-      });
+      const res = await chatMutation.mutateAsync({ message: trimmed });
 
-      const replyText =
-        (res && (res.data?.reply || res.data?.message || res.data?.content)) ??
-        "Terima kasih, pesan Anda sudah diterima.";
+      const replyText = parseChatReply(res);
 
       const botMessage: ChatMessage = {
         id: `${Date.now()}-assistant`,

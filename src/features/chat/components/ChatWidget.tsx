@@ -15,7 +15,8 @@ import {
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
-import { useApiPostMutation } from "@/hooks/api";
+import { useChatMutation } from "@/hooks/services";
+import { parseChatReply } from "@/services/chatService";
 
 type ChatRole = "user" | "assistant" | "system";
 
@@ -28,9 +29,7 @@ interface ChatMessage {
 const drawerWidth = { xs: "100%", sm: 420, md: 440 };
 
 export function ChatWidget() {
-  const chatMutation = useApiPostMutation<{
-    data?: { reply?: string; message?: string; content?: string };
-  }>();
+  const chatMutation = useChatMutation();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -55,16 +54,9 @@ export function ChatWidget() {
     setSending(true);
 
     try {
-      const res = await chatMutation.mutateAsync({
-        path: "/chat",
-        body: {
-          message: trimmed,
-        },
-      });
+      const res = await chatMutation.mutateAsync({ message: trimmed });
 
-      const replyText =
-        (res && (res.data?.reply || res.data?.message || res.data?.content)) ??
-        "Terima kasih, pesan Anda sudah diterima.";
+      const replyText = parseChatReply(res);
 
       const botMessage: ChatMessage = {
         id: `${Date.now()}-assistant`,

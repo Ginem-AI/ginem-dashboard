@@ -73,3 +73,45 @@ export function useApiDeleteMutation<TData = unknown>(
     onSuccess,
   });
 }
+
+export function useServicePostMutation<TData = unknown, TBody = unknown>(
+  mutationFn: (body: TBody) => Promise<TData>,
+  options?: MutationOptions<TData>,
+) {
+  const onError = useApiErrorHandler();
+  const onSuccess = useInvalidateOnSuccess(options);
+
+  return useMutation({
+    mutationFn,
+    onError,
+    onSuccess,
+  });
+}
+
+export function useServicePatchMutation<TData = unknown, TBody = unknown>(
+  mutationFn: (body: TBody) => Promise<TData>,
+  options?: MutationOptions<TData>,
+) {
+  const onError = useApiErrorHandler();
+  const onSuccess = useInvalidateOnSuccess(options);
+
+  return useMutation({
+    mutationFn,
+    onError,
+    onSuccess,
+  });
+}
+
+export function useServiceDeleteMutation<TData = unknown, TVariables = number>(
+  mutationFn: (id: TVariables) => Promise<TData>,
+  options?: MutationOptions<TData>,
+) {
+  const onError = useApiErrorHandler();
+  const onSuccess = useInvalidateOnSuccess(options);
+
+  return useMutation({
+    mutationFn,
+    onError,
+    onSuccess,
+  });
+}

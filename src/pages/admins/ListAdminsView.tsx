@@ -7,11 +7,11 @@ import {
 } from "@mui/x-data-grid";
 import { useState } from "react";
 import {
-  useApiDeleteMutation,
-  useApiPatchMutation,
-  useApiPostMutation,
-  useTableDataQuery,
-} from "@/hooks/api";
+  useAdminListQuery,
+  useCreateAdminMutation,
+  useDeleteAdminMutation,
+  useUpdateAdminMutation,
+} from "@/hooks/services";
 import {
   Button,
   Stack,
@@ -48,25 +48,19 @@ export default function ListAdminView() {
     page: 0,
   });
 
-  const { data, isFetching } = useTableDataQuery<AdminRow>("/admins", {
+  const { data, isFetching } = useAdminListQuery({
     page: paginationModel.page + 1,
     size: paginationModel.pageSize,
-    filter: { search: searchFilter },
+    search: searchFilter,
   });
 
   const tableData = data?.items ?? [];
   const rowCount = data?.totalItems ?? 0;
   const loading = isFetching;
 
-  const createAdmin = useApiPostMutation({
-    invalidateTablePaths: ["/admins"],
-  });
-  const updateAdmin = useApiPatchMutation({
-    invalidateTablePaths: ["/admins"],
-  });
-  const deleteAdmin = useApiDeleteMutation({
-    invalidateTablePaths: ["/admins"],
-  });
+  const createAdmin = useCreateAdminMutation();
+  const updateAdmin = useUpdateAdminMutation();
+  const deleteAdmin = useDeleteAdminMutation();
 
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [createName, setCreateName] = useState("");
@@ -372,12 +366,9 @@ export default function ListAdminView() {
               setCreateFieldErrors({});
               try {
                 await createAdmin.mutateAsync({
-                  path: "/admins",
-                  body: {
-                    userName: parsed.data.userName,
-                    userEmail: parsed.data.userEmail,
-                    userPassword: parsed.data.userPassword,
-                  },
+                  userName: parsed.data.userName,
+                  userEmail: parsed.data.userEmail,
+                  userPassword: parsed.data.userPassword,
                 });
                 setOpenCreateModal(false);
                 setCreateName("");
@@ -506,10 +497,7 @@ export default function ListAdminView() {
                   body.userPassword = parsed.data.userPassword;
                 }
 
-                await updateAdmin.mutateAsync({
-                  path: "/admins",
-                  body,
-                });
+                await updateAdmin.mutateAsync(body);
                 setOpenEditModal(false);
               } catch (error: unknown) {
                 console.error(error);
@@ -567,9 +555,7 @@ export default function ListAdminView() {
               if (!deleteTarget) return;
               setDeleteSubmitting(true);
               try {
-                await deleteAdmin.mutateAsync({
-                  path: `/admins/${deleteTarget.userId}`,
-                });
+                await deleteAdmin.mutateAsync(deleteTarget.userId);
                 setOpenDeleteModal(false);
                 setDeleteTarget(null);
               } catch (error) {

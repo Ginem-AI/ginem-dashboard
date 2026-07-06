@@ -5,7 +5,11 @@ import Grid from "@mui/material/Grid";
 import Skeleton from "@mui/material/Skeleton";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
-import { useApiGet, useTableDataQuery } from "@/hooks/api";
+import {
+  useDashboardLogsQuery,
+  useDashboardStatsQuery,
+} from "@/hooks/services";
+import type { DashboardStats } from "@/services/dashboardService";
 import BreadCrumberStyle from "@/components/common/Breadcrumb";
 import { IconMenus } from "@/assets/icons";
 import Alert from "@mui/material/Alert";
@@ -17,16 +21,8 @@ import { convertTime } from "@/utils/convertTime";
 import { Chip } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
-interface StatsData {
-  devices: number;
-  users: number;
-  schedulerLogs: number;
-  appLogs: number;
-  vectorIndexes: number;
-}
-
 const statCards: {
-  key: keyof StatsData;
+  key: keyof DashboardStats;
   label: string;
   icon: React.ElementType;
   color: string;
@@ -67,7 +63,7 @@ export default function DashboardView() {
     data: statsResult,
     isLoading: statsLoading,
     isError: statsError,
-  } = useApiGet<StatsData>("/stats");
+  } = useDashboardStatsQuery();
 
   const stats = statsResult ?? null;
   const error = statsError ? "Failed to load statistics." : null;
@@ -77,14 +73,11 @@ export default function DashboardView() {
     page: 1,
   });
 
-  const { data: logsData, isFetching: logsLoading } = useTableDataQuery(
-    "/logs",
-    {
-      page: paginationModel.page,
-      size: paginationModel.pageSize,
-      filter: { search: "" },
-    },
-  );
+  const { data: logsData, isFetching: logsLoading } = useDashboardLogsQuery({
+    page: paginationModel.page,
+    size: paginationModel.pageSize,
+    search: "",
+  });
 
   const tableData = logsData?.items ?? [];
   const rowCount = logsData?.totalItems ?? 0;

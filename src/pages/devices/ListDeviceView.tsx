@@ -1,11 +1,11 @@
 import Box from "@mui/material/Box";
 import { useEffect, useState } from "react";
 import {
-  useApiDeleteMutation,
-  useApiPatchMutation,
-  useApiPostMutation,
-  useTableDataQuery,
-} from "@/hooks/api";
+  useCreateDeviceMutation,
+  useDeleteDeviceMutation,
+  useDeviceListQuery,
+  useUpdateDeviceMutation,
+} from "@/hooks/services";
 import {
   Alert,
   Button,
@@ -89,10 +89,10 @@ export default function ListDeviceView() {
   });
 
   const { data, isFetching, isError, refetch, dataUpdatedAt } =
-    useTableDataQuery<IDevice>("/devices", {
+    useDeviceListQuery({
       page: paginationModel.page,
       size: paginationModel.pageSize,
-      filter: { search },
+      search,
       refetchInterval: 5000,
     });
 
@@ -104,15 +104,9 @@ export default function ListDeviceView() {
     ? "Failed to load devices. Please try again."
     : null;
 
-  const createDevice = useApiPostMutation({
-    invalidateTablePaths: ["/devices"],
-  });
-  const updateDevice = useApiPatchMutation({
-    invalidateTablePaths: ["/devices"],
-  });
-  const deleteDevice = useApiDeleteMutation({
-    invalidateTablePaths: ["/devices"],
-  });
+  const createDevice = useCreateDeviceMutation();
+  const updateDevice = useUpdateDeviceMutation();
+  const deleteDevice = useDeleteDeviceMutation();
 
   const [openAddModal, setOpenAddModal] = useState(false);
   const [addFormError, setAddFormError] = useState<string | null>(null);
@@ -179,10 +173,7 @@ export default function ListDeviceView() {
       if (Object.keys(deviceMetadata).length > 0) {
         body.deviceMetadata = deviceMetadata;
       }
-      await createDevice.mutateAsync({
-        path: "/devices",
-        body,
-      });
+      await createDevice.mutateAsync(body);
       handleCloseAddModal();
     } catch (error: unknown) {
       console.error(error);
@@ -207,9 +198,7 @@ export default function ListDeviceView() {
   const handleConfirmDelete = async () => {
     if (!deviceToDelete) return;
     try {
-      await deleteDevice.mutateAsync({
-        path: `/devices/${deviceToDelete.deviceId}`,
-      });
+      await deleteDevice.mutateAsync(deviceToDelete.deviceId);
       handleCloseDeleteModal();
     } catch (error: unknown) {
       console.error(error);
@@ -269,10 +258,7 @@ export default function ListDeviceView() {
         deviceMetadata,
       };
 
-      await updateDevice.mutateAsync({
-        path: `/devices`,
-        body,
-      });
+      await updateDevice.mutateAsync(body);
 
       handleCloseEditModal();
     } catch (error: unknown) {

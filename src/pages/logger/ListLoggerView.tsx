@@ -6,7 +6,7 @@ import {
   GridToolbarExport,
 } from "@mui/x-data-grid";
 import { useState } from "react";
-import { useTableDataQuery } from "@/hooks/api";
+import { useLoggerListQuery } from "@/hooks/services";
 import { Button, Chip, Stack, TextField } from "@mui/material";
 import BreadCrumberStyle from "@/components/common/Breadcrumb";
 import { IconMenus } from "@/assets/icons";
@@ -18,10 +18,10 @@ export default function ListLoggerView() {
     page: 1,
   });
 
-  const { data, isFetching, refetch } = useTableDataQuery("/logs", {
+  const { data, isFetching, refetch } = useLoggerListQuery({
     page: paginationModel.page,
     size: paginationModel.pageSize,
-    filter: { search: "" },
+    search: "",
   });
 
   const tableData = data?.items ?? [];

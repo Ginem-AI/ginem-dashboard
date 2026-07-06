@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import { useEffect, useState } from "react";
-import { useTableDataQuery } from "@/hooks/api";
+import { useSchedulerListQuery } from "@/hooks/services";
 import {
   Alert,
   Button,
@@ -65,10 +65,10 @@ export default function ListSchedulerView() {
   });
 
   const { data, isFetching, isError, refetch, dataUpdatedAt } =
-    useTableDataQuery("/scheduler-logs", {
+    useSchedulerListQuery({
       page: paginationModel.page,
       size: paginationModel.pageSize,
-      filter: { search },
+      search,
     });
 
   const tableData = data?.items ?? [];

@@ -9,16 +9,11 @@ import {
   Typography,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useApiPostMutation } from "@/hooks/api";
-
-interface RegisterPayload {
-  userName: string;
-  userEmail: string;
-  userPassword: string;
-}
+import { useRegisterMutation } from "@/hooks/services";
+import type { RegisterPayload } from "@/services/authService";
 
 export default function RegisterView() {
-  const registerMutation = useApiPostMutation();
+  const registerMutation = useRegisterMutation();
   const navigate = useNavigate();
 
   const [userName, setUserName] = useState("");
@@ -36,10 +31,7 @@ export default function RegisterView() {
         userPassword,
       };
 
-      const res = await registerMutation.mutateAsync({
-        path: "/auth/register/users",
-        body: payload,
-      });
+      const res = await registerMutation.mutateAsync(payload);
 
       if (res) {
         navigate("/");

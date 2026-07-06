@@ -1,10 +1,10 @@
 import Box from "@mui/material/Box";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  useApiDeleteMutation,
-  useApiPostMutation,
-  useTableDataQuery,
-} from "@/hooks/api";
+  useCreateEmbeddingMutation,
+  useDeleteEmbeddingMutation,
+  useEmbeddingListQuery,
+} from "@/hooks/services";
 import {
   Alert,
   Button,
@@ -202,10 +202,10 @@ export default function ListEmbeddingView() {
   const apiPage = paginationModel.page + 1;
 
   const { data, isFetching, isError, refetch, dataUpdatedAt } =
-    useTableDataQuery<IIndexing>("/indexing", {
+    useEmbeddingListQuery({
       page: apiPage,
       size: paginationModel.pageSize,
-      filter: { search: searchParamKey },
+      search: searchParamKey,
     });
 
   const rows = useMemo(
@@ -223,12 +223,8 @@ export default function ListEmbeddingView() {
     ? "Failed to load vector indexes. Please try again."
     : null;
 
-  const createIndexing = useApiPostMutation({
-    invalidateTablePaths: ["/indexing"],
-  });
-  const deleteIndexing = useApiDeleteMutation({
-    invalidateTablePaths: ["/indexing"],
-  });
+  const createIndexing = useCreateEmbeddingMutation();
+  const deleteIndexing = useDeleteEmbeddingMutation();
 
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [documentRows, setDocumentRows] = useState<IndexingDocumentDraft[]>([
@@ -281,10 +277,7 @@ export default function ListEmbeddingView() {
     setFormError(null);
     setSubmitIndexingLoading(true);
     try {
-      await createIndexing.mutateAsync({
-        path: "/indexing",
-        body: { documents },
-      });
+      await createIndexing.mutateAsync({ documents });
       setAppAlert({
         isDisplayAlert: true,
         message: "Content submitted for indexing.",
@@ -342,9 +335,7 @@ export default function ListEmbeddingView() {
   const handleConfirmDeleteIndexing = useCallback(async () => {
     if (!deleteTarget) return;
     try {
-      await deleteIndexing.mutateAsync({
-        path: `/indexing/${deleteTarget.indexingId}`,
-      });
+      await deleteIndexing.mutateAsync(deleteTarget.indexingId);
       setAppAlert({
         isDisplayAlert: true,
         message: "Vector index deleted.",

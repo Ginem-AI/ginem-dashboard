@@ -9,11 +9,11 @@ import {
   Stack,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useApiPostMutation } from "@/hooks/api";
+import { useLoginMutation } from "@/hooks/services";
 import { useToken } from "@/hooks/use-token";
 
 export default function LoginView() {
-  const loginMutation = useApiPostMutation<{ data: { accessToken: string } }>();
+  const loginMutation = useLoginMutation();
   const { setToken } = useToken();
   const navigate = useNavigate();
 
@@ -27,10 +27,7 @@ export default function LoginView() {
         userPassword,
       };
 
-      const result = await loginMutation.mutateAsync({
-        path: "/auth/login",
-        body: payload,
-      });
+      const result = await loginMutation.mutateAsync(payload);
 
       if (result) {
         setToken(result.data.accessToken);

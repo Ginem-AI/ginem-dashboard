@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import { useApiGet } from "@/hooks/api";
+import { useDeviceDetailQuery } from "@/hooks/services";
 import {
   Alert,
   Button,
@@ -20,7 +20,7 @@ import { IconMenus } from "@/assets/icons";
 import { convertTime } from "@/utils/convertTime";
 import { useNavigate, useParams } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { IDevice, IDeviceValue } from "@/types/Device";
+import { IDeviceValue } from "@/types/Device";
 
 export default function DetailDeviceView() {
   const { deviceId } = useParams<{ deviceId: string }>();
@@ -30,9 +30,7 @@ export default function DetailDeviceView() {
     data: device,
     isLoading: loading,
     isError,
-  } = useApiGet<IDevice>(`/devices/detail/${deviceId}`, {
-    enabled: Boolean(deviceId),
-  });
+  } = useDeviceDetailQuery(deviceId);
 
   const errorMessage = isError ? "Failed to load device." : null;
 

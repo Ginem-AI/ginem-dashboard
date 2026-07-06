@@ -12,8 +12,7 @@ import { ROUTES } from "@/routes/routes";
 import BreadCrumberStyle from "@/components/common/Breadcrumb";
 import { IconMenus } from "@/assets/icons";
 import { convertTime } from "@/utils/convertTime";
-import { useApiGet } from "@/hooks/api";
-import { IUser } from "@/types/User";
+import { useMyProfileQuery } from "@/hooks/services";
 
 /* ============================================================
    COMPONENT
@@ -21,7 +20,7 @@ import { IUser } from "@/types/User";
 const ProfileView = () => {
   const theme = useTheme();
 
-  const { data: myProfile } = useApiGet<IUser>("/my-profiles");
+  const { data: myProfile } = useMyProfileQuery();
 
   return (
     <Box>

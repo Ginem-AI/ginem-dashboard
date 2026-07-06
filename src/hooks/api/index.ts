@@ -4,5 +4,8 @@ export {
   useApiPostMutation,
   useApiPatchMutation,
   useApiDeleteMutation,
+  useServicePostMutation,
+  useServicePatchMutation,
+  useServiceDeleteMutation,
 } from "./useApiMutations";
 export { useApiErrorHandler } from "./useApiErrorHandler";

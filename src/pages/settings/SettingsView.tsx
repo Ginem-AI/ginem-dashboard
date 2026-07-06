@@ -16,21 +16,13 @@ import {
   MenuItem,
   Grid,
 } from "@mui/material";
-import { useApiGet, useApiPostMutation } from "@/hooks/api";
-import { apiClient } from "@/services/api";
+import {
+  useDisconnectWhatsappMutation,
+  useWhatsappQrQuery,
+  useWhatsappStatusQuery,
+} from "@/hooks/services";
+import { settingsService } from "@/services/settingsService";
 import { useApiErrorHandler } from "@/hooks/api/useApiErrorHandler";
-
-type QRData = {
-  connectionStatus: string;
-  timedOut: boolean;
-  mimeType: string;
-  qrImageBase64: string;
-};
-
-type StatusData = {
-  connectionStatus: string;
-  lastDisconnectReason?: string;
-};
 
 export default function SettingsView() {
   const [selectedModel, setSelectedModel] = useState("gpt-4o");
@@ -43,25 +35,16 @@ export default function SettingsView() {
     data: status,
     isLoading: loadingStatus,
     refetch: refetchStatus,
-  } = useApiGet<StatusData>("/whatsapp/connection-status");
+  } = useWhatsappStatusQuery();
 
   const isConnecting = connecting || status?.connectionStatus === "connecting";
 
-  const { data: qrData, isFetching: loadingQR } = useApiGet<QRData>(
-    "/whatsapp/connect?type=base64",
-    {
-      enabled: isConnecting,
-      refetchInterval: isConnecting ? 5000 : false,
-    },
-  );
-
-  const disconnect = useApiPostMutation({
-    invalidateGetPaths: ["/whatsapp/connection-status"],
-    onSuccess: () => {
-      setConnecting(false);
-      refetchStatus();
-    },
+  const { data: qrData, isFetching: loadingQR } = useWhatsappQrQuery({
+    enabled: isConnecting,
+    refetchInterval: isConnecting ? 5000 : false,
   });
+
+  const disconnect = useDisconnectWhatsappMutation();
 
   const llmModels = [
     { provider: "OpenAI", models: ["gpt-4o", "gpt-4-turbo"] },
@@ -73,7 +56,7 @@ export default function SettingsView() {
     try {
       setConnectLoading(true);
       setError(null);
-      await apiClient.get<QRData>("/whatsapp/connect?type=base64");
+      await settingsService.connectWhatsapp();
       setConnecting(true);
       refetchStatus();
     } catch (err) {
@@ -87,10 +70,9 @@ export default function SettingsView() {
   const handleDisconnect = async () => {
     try {
       setError(null);
-      await disconnect.mutateAsync({
-        path: "/whatsapp/disconnect",
-        body: {},
-      });
+      await disconnect.mutateAsync();
+      setConnecting(false);
+      refetchStatus();
     } catch {
       setError("Failed to disconnect");
     }
