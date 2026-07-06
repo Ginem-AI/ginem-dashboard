@@ -21,7 +21,12 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
-      include: ["src/services/**", "src/hooks/api/**", "src/utils/**"],
+      include: [
+        "src/services/**",
+        "src/hooks/api/**",
+        "src/hooks/services/**",
+        "src/utils/**",
+      ],
     },
   },
 });

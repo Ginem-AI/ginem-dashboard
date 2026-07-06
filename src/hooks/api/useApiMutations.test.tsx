@@ -22,6 +22,9 @@ import {
   useApiDeleteMutation,
   useApiPatchMutation,
   useApiPostMutation,
+  useServiceDeleteMutation,
+  useServicePatchMutation,
+  useServicePostMutation,
 } from "./useApiMutations";
 
 describe("useApiMutations", () => {
@@ -107,6 +110,69 @@ describe("useApiMutations", () => {
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
+    });
+  });
+});
+
+describe("useServiceMutations", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("useServicePostMutation calls service function and invalidates table", async () => {
+    const serviceFn = vi.fn().mockResolvedValue({ ok: true });
+    const queryClient = createTestQueryClient();
+    const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
+
+    const { result } = renderHook(
+      () =>
+        useServicePostMutation(serviceFn, {
+          invalidateTablePaths: ["/devices"],
+        }),
+      { wrapper: createAppQueryWrapper(queryClient) },
+    );
+
+    await result.current.mutateAsync({ deviceName: "Sensor" });
+
+    expect(serviceFn.mock.calls[0]?.[0]).toEqual({ deviceName: "Sensor" });
+    expect(invalidateSpy).toHaveBeenCalledWith({
+      queryKey: queryKeys.tableRoot("/devices"),
+    });
+  });
+
+  it("useServicePatchMutation calls service function", async () => {
+    const serviceFn = vi.fn().mockResolvedValue({ ok: true });
+
+    const { result } = renderHook(() => useServicePatchMutation(serviceFn), {
+      wrapper: createAppQueryWrapper(),
+    });
+
+    await result.current.mutateAsync({ deviceId: 1, deviceName: "Updated" });
+
+    expect(serviceFn.mock.calls[0]?.[0]).toEqual({
+      deviceId: 1,
+      deviceName: "Updated",
+    });
+  });
+
+  it("useServiceDeleteMutation calls service function with id", async () => {
+    const serviceFn = vi.fn().mockResolvedValue({ ok: true });
+    const queryClient = createTestQueryClient();
+    const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
+
+    const { result } = renderHook(
+      () =>
+        useServiceDeleteMutation(serviceFn, {
+          invalidateTablePaths: ["/indexing"],
+        }),
+      { wrapper: createAppQueryWrapper(queryClient) },
+    );
+
+    await result.current.mutateAsync(15);
+
+    expect(serviceFn.mock.calls[0]?.[0]).toBe(15);
+    expect(invalidateSpy).toHaveBeenCalledWith({
+      queryKey: queryKeys.tableRoot("/indexing"),
     });
   });
 });
