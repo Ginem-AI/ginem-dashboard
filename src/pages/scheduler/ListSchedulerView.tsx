@@ -59,14 +59,15 @@ export default function ListSchedulerView() {
   const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get("search") || "";
 
+  // UI pagination is 0-based; API expects page >= 1
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 25,
-    page: 1,
+    page: 0,
   });
 
   const { data, isFetching, isError, refetch, dataUpdatedAt } =
     useSchedulerListQuery({
-      page: paginationModel.page,
+      page: paginationModel.page + 1,
       size: paginationModel.pageSize,
       search,
     });

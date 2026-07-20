@@ -13,13 +13,14 @@ import { IconMenus } from "@/assets/icons";
 import { convertTime } from "@/utils/convertTime";
 
 export default function ListLoggerView() {
+  // DataGrid is 0-based; API expects page >= 1
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 10,
-    page: 1,
+    page: 0,
   });
 
   const { data, isFetching, refetch } = useLoggerListQuery({
-    page: paginationModel.page,
+    page: paginationModel.page + 1,
     size: paginationModel.pageSize,
     search: "",
   });
@@ -128,9 +129,6 @@ export default function ListLoggerView() {
           getRowId={(row) => row.appLogId}
           sx={{ backgroundColor: "background.default", p: 2 }}
           autoHeight
-          initialState={{
-            pagination: { paginationModel: { pageSize: 2, page: 1 } },
-          }}
           loading={loading}
           pageSizeOptions={[2, 5, 10, 25]}
           paginationModel={paginationModel}

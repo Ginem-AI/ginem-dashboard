@@ -77,7 +77,8 @@ async function remove<T>(path: string): Promise<T> {
 async function getTableData<T>(
   params: TableQueryParams,
 ): Promise<PaginatedResponse<T>> {
-  const page = params.page ?? 1;
+  // Backend validates page >= 1 (MUI DataGrid / Pagination UI is 0-based)
+  const page = Math.max(1, params.page ?? 1);
   const size = params.size ?? 10;
   const filters = normalizeFilters(params.filter);
   const queryFilter = new URLSearchParams(filters).toString();

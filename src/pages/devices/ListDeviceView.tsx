@@ -83,14 +83,15 @@ export default function ListDeviceView() {
   const navigate = useNavigate();
   const search = searchParams.get("search") || "";
 
+  // UI pagination is 0-based; API expects page >= 1
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 10,
-    page: 1,
+    page: 0,
   });
 
   const { data, isFetching, isError, refetch, dataUpdatedAt } =
     useDeviceListQuery({
-      page: paginationModel.page,
+      page: paginationModel.page + 1,
       size: paginationModel.pageSize,
       search,
       refetchInterval: 5000,

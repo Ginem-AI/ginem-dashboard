@@ -68,13 +68,14 @@ export default function DashboardView() {
   const stats = statsResult ?? null;
   const error = statsError ? "Failed to load statistics." : null;
 
+  // DataGrid is 0-based; API expects page >= 1
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 10,
-    page: 1,
+    page: 0,
   });
 
   const { data: logsData, isFetching: logsLoading } = useDashboardLogsQuery({
-    page: paginationModel.page,
+    page: paginationModel.page + 1,
     size: paginationModel.pageSize,
     search: "",
   });
@@ -225,9 +226,6 @@ export default function DashboardView() {
             my: 5,
           }}
           autoHeight
-          initialState={{
-            pagination: { paginationModel: { pageSize: 2, page: 1 } },
-          }}
           loading={logsLoading}
           pageSizeOptions={[2, 5, 10, 25]}
           paginationModel={paginationModel}
