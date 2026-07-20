@@ -1,6 +1,4 @@
-import Box from "@mui/material/Box";
 import {
-  DataGrid,
   GridColDef,
   GridToolbarContainer,
   GridToolbarExport,
@@ -9,11 +7,13 @@ import { useState } from "react";
 import { useLoggerListQuery } from "@/hooks/services";
 import { Button, Chip, Stack, TextField } from "@mui/material";
 import BreadCrumberStyle from "@/components/common/Breadcrumb";
+import PageHeader from "@/components/common/PageHeader";
+import AppDataGrid from "@/components/common/AppDataGrid";
 import { IconMenus } from "@/assets/icons";
 import { convertTime } from "@/utils/convertTime";
+import { ROUTES } from "@/routes/routes";
 
 export default function ListLoggerView() {
-  // DataGrid is 0-based; API expects page >= 1
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 10,
     page: 0,
@@ -48,14 +48,13 @@ export default function ListLoggerView() {
   const columns: GridColDef[] = [
     {
       field: "appLogId",
-      renderHeader: () => <strong>{"ID"}</strong>,
-      editable: true,
+      headerName: "ID",
+      width: 90,
     },
     {
       field: "appLogLevel",
       width: 120,
-      renderHeader: () => <strong>{"Level"}</strong>,
-      editable: false,
+      headerName: "Level",
       renderCell: (params) => {
         const { label, color } = getLevelChipProps(params.value);
         return (
@@ -66,14 +65,14 @@ export default function ListLoggerView() {
     {
       field: "appLogMessage",
       flex: 2,
-      renderHeader: () => <strong>{"Message"}</strong>,
-      editable: true,
+      minWidth: 200,
+      headerName: "Message",
     },
     {
       field: "createdAt",
       flex: 1,
-      renderHeader: () => <strong>{"Dipesan pada"}</strong>,
-      editable: true,
+      minWidth: 160,
+      headerName: "Created at",
       valueFormatter: (item) => convertTime(item.value),
     },
   ];
@@ -81,14 +80,16 @@ export default function ListLoggerView() {
   function CustomToolbar() {
     const [search, setSearch] = useState<string>("");
     return (
-      <GridToolbarContainer sx={{ justifyContent: "space-between", mb: 2 }}>
-        <Stack direction="row" spacing={2}>
+      <GridToolbarContainer
+        sx={{ justifyContent: "space-between", width: "100%" }}
+      >
+        <Stack direction="row" spacing={1}>
           <GridToolbarExport />
         </Stack>
-        <Stack direction={"row"} spacing={1} alignItems={"center"}>
+        <Stack direction="row" spacing={1} alignItems="center">
           <TextField
             size="small"
-            placeholder="search..."
+            placeholder="Search…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -106,40 +107,27 @@ export default function ListLoggerView() {
         navigation={[
           {
             label: "Logger",
-            link: "/logger",
+            link: ROUTES.logger,
             icon: <IconMenus.logger fontSize="small" />,
           },
         ]}
       />
-      <Box
-        sx={{
-          width: "100%",
-          "& .actions": {
-            color: "text.secondary",
-          },
-          "& .textPrimary": {
-            color: "text.primary",
-          },
-        }}
-      >
-        <DataGrid
-          rows={tableData}
-          columns={columns}
-          editMode="row"
-          getRowId={(row) => row.appLogId}
-          sx={{ backgroundColor: "background.default", p: 2 }}
-          autoHeight
-          loading={loading}
-          pageSizeOptions={[2, 5, 10, 25]}
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          slots={{
-            toolbar: CustomToolbar,
-          }}
-          rowCount={rowCount}
-          paginationMode="server"
-        />
-      </Box>
+      <PageHeader
+        title="Application logs"
+        subtitle="Browse and export recent system events"
+      />
+      <AppDataGrid
+        rows={tableData}
+        columns={columns}
+        getRowId={(row) => row.appLogId}
+        loading={loading}
+        pageSizeOptions={[5, 10, 25]}
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+        slots={{ toolbar: CustomToolbar }}
+        rowCount={rowCount}
+        paginationMode="server"
+      />
     </>
   );
 }

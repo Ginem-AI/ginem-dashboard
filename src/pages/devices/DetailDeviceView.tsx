@@ -21,6 +21,8 @@ import { convertTime } from "@/utils/convertTime";
 import { useNavigate, useParams } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { IDeviceValue } from "@/types/Device";
+import { muiTableContainerSx } from "@/styles/tableStyles";
+import { ROUTES } from "@/routes/routes";
 
 export default function DetailDeviceView() {
   const { deviceId } = useParams<{ deviceId: string }>();
@@ -54,7 +56,7 @@ export default function DetailDeviceView() {
         navigation={[
           {
             label: "Devices",
-            link: "/devices",
+            link: ROUTES.devices,
             icon: <IconMenus.device fontSize="small" />,
           },
           {
@@ -69,7 +71,7 @@ export default function DetailDeviceView() {
           <Button
             size="small"
             startIcon={<ArrowBackIcon />}
-            onClick={() => navigate("/devices")}
+            onClick={() => navigate(ROUTES.devices)}
           >
             Back
           </Button>
@@ -183,18 +185,18 @@ export default function DetailDeviceView() {
                 No device values.
               </Typography>
             ) : (
-              <TableContainer>
+              <TableContainer sx={muiTableContainerSx}>
                 <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 700 }}>ID</TableCell>
-                      <TableCell sx={{ fontWeight: 700 }}>Value</TableCell>
-                      <TableCell sx={{ fontWeight: 700 }}>Created at</TableCell>
+                      <TableCell>ID</TableCell>
+                      <TableCell>Value</TableCell>
+                      <TableCell>Created at</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {deviceValues.map((item: IDeviceValue) => (
-                      <TableRow key={item.deviceValueId}>
+                      <TableRow key={item.deviceValueId} hover>
                         <TableCell>{item.deviceValueId}</TableCell>
                         <TableCell>{item.deviceValueValue ?? "—"}</TableCell>
                         <TableCell>

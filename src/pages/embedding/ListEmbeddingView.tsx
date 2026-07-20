@@ -26,12 +26,12 @@ import {
   Typography,
 } from "@mui/material";
 import {
-  DataGrid,
   GridActionsCellItem,
   GridColDef,
   GridPaginationModel,
 } from "@mui/x-data-grid";
 import BreadCrumberStyle from "@/components/common/Breadcrumb";
+import AppDataGrid from "@/components/common/AppDataGrid";
 import { IconMenus } from "@/assets/icons";
 import { convertTime } from "@/utils/convertTime";
 import { useSearchParams } from "react-router-dom";
@@ -488,7 +488,8 @@ export default function ListEmbeddingView() {
             />
           ) : (
             <Box sx={{ mt: 2, width: "100%" }}>
-              <DataGrid
+              <AppDataGrid
+                withSurface={false}
                 rows={rows}
                 columns={columns}
                 loading={loading}
@@ -497,20 +498,6 @@ export default function ListEmbeddingView() {
                 paginationModel={paginationModel}
                 paginationMode="server"
                 onPaginationModelChange={setPaginationModel}
-                disableRowSelectionOnClick
-                density="compact"
-                autoHeight
-                sx={{
-                  border: "none",
-                  "& .MuiDataGrid-columnHeaders": {
-                    fontWeight: 700,
-                    bgcolor: "action.hover",
-                  },
-                  "& .MuiDataGrid-cell": {
-                    alignItems: "center",
-                    display: "flex",
-                  },
-                }}
               />
             </Box>
           )}

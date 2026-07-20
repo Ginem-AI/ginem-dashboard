@@ -21,7 +21,8 @@ import AccessAlarmIcon from "@mui/icons-material/AccessAlarm";
 import QueryStatsOutlinedIcon from "@mui/icons-material/QueryStatsOutlined";
 import { convertTime } from "@/utils/convertTime";
 import { Chip, Stack, alpha } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import type { GridColDef } from "@mui/x-data-grid";
+import AppDataGrid from "@/components/common/AppDataGrid";
 import { brand } from "@/styles/theme";
 import { ROUTES } from "@/routes/routes";
 
@@ -111,12 +112,12 @@ export default function DashboardView() {
     {
       field: "appLogId",
       width: 90,
-      renderHeader: () => <strong>ID</strong>,
+      headerName: "ID",
     },
     {
       field: "appLogLevel",
       width: 120,
-      renderHeader: () => <strong>Level</strong>,
+      headerName: "Level",
       renderCell: (params) => {
         const { label, color } = getLevelChipProps(params.value);
         return (
@@ -128,13 +129,13 @@ export default function DashboardView() {
       field: "appLogMessage",
       flex: 2,
       minWidth: 200,
-      renderHeader: () => <strong>Message</strong>,
+      headerName: "Message",
     },
     {
       field: "createdAt",
       flex: 1,
       minWidth: 160,
-      renderHeader: () => <strong>Created at</strong>,
+      headerName: "Created at",
       valueFormatter: (item) => convertTime(item.value),
     },
   ];
@@ -205,7 +206,10 @@ export default function DashboardView() {
                   >
                     <Icon sx={{ fontSize: 24 }} />
                   </Box>
-                  <Typography variant="caption" sx={{ opacity: 0.85, fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    sx={{ opacity: 0.85, fontWeight: 600 }}
+                  >
                     {hint}
                   </Typography>
                 </Stack>
@@ -219,7 +223,11 @@ export default function DashboardView() {
                     <Typography variant="h4" fontWeight={800} lineHeight={1.1}>
                       {stats?.[key] ?? 0}
                     </Typography>
-                    <Typography variant="body2" fontWeight={700} sx={{ mt: 0.75, opacity: 0.9 }}>
+                    <Typography
+                      variant="body2"
+                      fontWeight={700}
+                      sx={{ mt: 0.75, opacity: 0.9 }}
+                    >
                       {label}
                     </Typography>
                   </>
@@ -231,29 +239,26 @@ export default function DashboardView() {
       </Grid>
 
       <Card sx={{ p: { xs: 1.5, md: 2 } }}>
-        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1.5, px: 1 }}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={1}
+          sx={{ mb: 1.5, px: 1 }}
+        >
           <QueryStatsOutlinedIcon color="primary" fontSize="small" />
           <Typography fontWeight={700}>Latest application logs</Typography>
         </Stack>
-        <DataGrid
+        <AppDataGrid
+          withSurface={false}
           rows={tableData}
           columns={columns}
           getRowId={(row) => row.appLogId}
-          autoHeight
           loading={logsLoading}
           pageSizeOptions={[5, 10, 25]}
           paginationModel={paginationModel}
           onPaginationModelChange={setPaginationModel}
           rowCount={rowCount}
           paginationMode="server"
-          disableRowSelectionOnClick
-          sx={{
-            border: "none",
-            "& .MuiDataGrid-columnHeaders": {
-              bgcolor: alpha(brand.indigo, 0.04),
-              borderRadius: 2,
-            },
-          }}
         />
       </Card>
     </Box>

@@ -1,6 +1,5 @@
 import Box from "@mui/material/Box";
 import {
-  DataGrid,
   GridColDef,
   GridToolbarContainer,
   GridToolbarExport,
@@ -25,12 +24,15 @@ import {
   DialogActions,
 } from "@mui/material";
 import BreadCrumberStyle from "@/components/common/Breadcrumb";
+import PageHeader from "@/components/common/PageHeader";
+import AppDataGrid from "@/components/common/AppDataGrid";
 import { IconMenus } from "@/assets/icons";
 import { convertTime } from "@/utils/convertTime";
 import {
   adminCreateSchema,
   AdminCreateValues,
 } from "@/utils/validators/adminSchema";
+import { ROUTES } from "@/routes/routes";
 
 interface AdminRow {
   userId: number;
@@ -91,7 +93,8 @@ export default function ListAdminView() {
     {
       field: "userName",
       flex: 1,
-      renderHeader: () => <strong>{"ADMIN"}</strong>,
+      minWidth: 200,
+      headerName: "Admin",
       renderCell: (params) => (
         <Stack direction="row" spacing={1.5} alignItems="center">
           <Avatar
@@ -118,12 +121,12 @@ export default function ListAdminView() {
     {
       field: "userRole",
       width: 120,
-      renderHeader: () => <strong>{"ROLE"}</strong>,
+      headerName: "Role",
       renderCell: (params) => (
         <Chip
           label={params.value || "admin"}
           size="small"
-          color="error"
+          color="primary"
           variant="outlined"
           sx={{ textTransform: "capitalize" }}
         />
@@ -132,7 +135,7 @@ export default function ListAdminView() {
     {
       field: "userOnboardingStatus",
       width: 140,
-      renderHeader: () => <strong>{"ONBOARDING"}</strong>,
+      headerName: "Onboarding",
       renderCell: (params) => {
         const status = (params.value || "").toLowerCase();
         const color =
@@ -155,13 +158,13 @@ export default function ListAdminView() {
     {
       field: "createdAt",
       width: 170,
-      renderHeader: () => <strong>{"JOINED AT"}</strong>,
+      headerName: "Joined at",
       valueFormatter: (item) => convertTime(item.value),
     },
     {
       field: "actions",
       width: 190,
-      renderHeader: () => <strong>{"ACTION"}</strong>,
+      headerName: "Action",
       sortable: false,
       filterable: false,
       renderCell: (params) => {
@@ -241,40 +244,26 @@ export default function ListAdminView() {
         navigation={[
           {
             label: "Admins",
-            link: "/admins",
+            link: ROUTES.admins,
             icon: <IconMenus.admin fontSize="small" />,
           },
         ]}
       />
-      <Box
-        sx={{
-          width: "100%",
-          "& .MuiDataGrid-columnHeaders": {
-            fontWeight: 700,
-            backgroundColor: "action.hover",
-          },
+      <PageHeader title="Admins" subtitle="Manage administrator accounts" />
+      <AppDataGrid
+        rows={tableData}
+        columns={columns}
+        getRowId={(row: AdminRow) => row.userId}
+        pageSizeOptions={[5, 10, 25, 50]}
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+        slots={{
+          toolbar: CustomToolbar,
         }}
-      >
-        <DataGrid
-          rows={tableData}
-          columns={columns}
-          getRowId={(row: AdminRow) => row.userId}
-          sx={{ padding: 2, backgroundColor: "background.default" }}
-          initialState={{
-            pagination: { paginationModel: { pageSize: 10, page: 0 } },
-          }}
-          autoHeight
-          pageSizeOptions={[5, 10, 25, 50]}
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          slots={{
-            toolbar: CustomToolbar,
-          }}
-          rowCount={rowCount}
-          paginationMode="server"
-          loading={loading}
-        />
-      </Box>
+        rowCount={rowCount}
+        paginationMode="server"
+        loading={loading}
+      />
 
       <Dialog
         open={openCreateModal}

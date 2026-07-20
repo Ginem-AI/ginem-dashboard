@@ -27,6 +27,7 @@ import { IconMenus } from "@/assets/icons";
 import { convertTime } from "@/utils/convertTime";
 import { ROUTES } from "@/routes/routes";
 import { useSearchParams } from "react-router-dom";
+import { muiTableContainerSx } from "@/styles/tableStyles";
 import SearchIcon from "@mui/icons-material/Search";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import CloseIcon from "@mui/icons-material/Close";
@@ -236,19 +237,26 @@ export default function ListSchedulerView() {
               subtitle="Try adjusting your search or wait for new scheduled jobs."
             />
           ) : (
-            <TableContainer sx={{ mt: 2 }}>
+            <TableContainer
+              sx={(theme) => ({
+                ...((typeof muiTableContainerSx === "function"
+                  ? muiTableContainerSx(theme)
+                  : muiTableContainerSx) as object),
+                mt: 2,
+              })}
+            >
               <Table size="small" stickyHeader>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 700 }}>Job ID</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Device</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>State</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Delay</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Scheduled at</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Run at</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Executed at</TableCell>
+                    <TableCell>Job ID</TableCell>
+                    <TableCell>Type</TableCell>
+                    <TableCell>Device</TableCell>
+                    <TableCell>State</TableCell>
+                    <TableCell>Delay</TableCell>
+                    <TableCell>Scheduled at</TableCell>
+                    <TableCell>Run at</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Executed at</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
