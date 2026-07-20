@@ -56,7 +56,6 @@ type NavItem = {
   title: string;
   link: string;
   icon: ReactElement;
-  accent?: string;
 };
 
 const mainNav: NavItem[] = [
@@ -64,31 +63,26 @@ const mainNav: NavItem[] = [
     title: "Dashboard",
     link: ROUTES.home,
     icon: <IconMenus.dashboard fontSize="small" />,
-    accent: brand.indigo,
   },
   {
     title: "Devices",
     link: ROUTES.devices,
     icon: <IconMenus.device fontSize="small" />,
-    accent: brand.cyanDeep,
   },
   {
     title: "Scheduler",
     link: ROUTES.scheduler,
     icon: <IconMenus.schedule fontSize="small" />,
-    accent: brand.orange,
   },
   {
     title: "Embedding",
     link: ROUTES.indexing,
     icon: <IconMenus.vectorIndexes fontSize="small" />,
-    accent: brand.violet,
   },
   {
     title: "Logger",
     link: ROUTES.logger,
     icon: <IconMenus.logger fontSize="small" />,
-    accent: brand.sky,
   },
 ];
 
@@ -97,19 +91,16 @@ const manageNav: NavItem[] = [
     title: "Admin",
     link: ROUTES.admins,
     icon: <IconMenus.admin fontSize="small" />,
-    accent: brand.coralDeep,
   },
   {
     title: "Settings",
     link: ROUTES.settings,
     icon: <IconMenus.settings fontSize="small" />,
-    accent: brand.sidebarMuted,
   },
   {
     title: "Profile",
     link: ROUTES.profile,
     icon: <IconMenus.profile fontSize="small" />,
-    accent: brand.mintDeep,
   },
 ];
 
@@ -155,28 +146,26 @@ function NavSection({
               component={Link}
               to={item.link}
               onClick={onNavigate}
-              sx={{
+              sx={(theme) => ({
                 mb: 0.5,
                 borderRadius: 2.5,
                 py: 1.1,
                 px: 1.5,
-                color: active ? brand.indigoDeep : "text.secondary",
+                color: active ? "primary.main" : "text.secondary",
                 backgroundColor: active
-                  ? alpha(item.accent ?? brand.indigo, 0.12)
+                  ? alpha(theme.palette.primary.main, 0.12)
                   : "transparent",
                 "&:hover": {
                   backgroundColor: active
-                    ? alpha(item.accent ?? brand.indigo, 0.16)
-                    : alpha(brand.indigo, 0.06),
+                    ? alpha(theme.palette.primary.main, 0.16)
+                    : alpha(theme.palette.primary.main, 0.06),
                 },
-              }}
+              })}
             >
               <ListItemIcon
                 sx={{
                   minWidth: 36,
-                  color: active
-                    ? (item.accent ?? brand.indigo)
-                    : "text.secondary",
+                  color: active ? "primary.main" : "text.secondary",
                 }}
               >
                 {item.icon}
@@ -186,6 +175,7 @@ function NavSection({
                 primaryTypographyProps={{
                   fontWeight: active ? 700 : 500,
                   fontSize: 14,
+                  color: "inherit",
                 }}
               />
             </ListItemButton>
