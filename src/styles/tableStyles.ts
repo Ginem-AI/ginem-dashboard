@@ -87,7 +87,7 @@ export const dataGridSx: SxProps<Theme> = (theme) => {
 export const tableSurfaceSx: SxProps<Theme> = (theme) => ({
   width: "100%",
   overflow: "hidden",
-  borderRadius: 3,
+  borderRadius: 1.5,
   border: `1px solid ${
     theme.palette.mode === "dark"
       ? "rgba(148,163,184,0.12)"
@@ -108,7 +108,7 @@ export const muiTableContainerSx: SxProps<Theme> = (theme) => {
     : alpha(theme.palette.primary.main, 0.1);
 
   return {
-    borderRadius: 3,
+    borderRadius: 1.5,
     border: `1px solid ${hairline}`,
     bgcolor: "background.paper",
     overflow: "hidden",

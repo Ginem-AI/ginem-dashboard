@@ -52,7 +52,7 @@ export function createAppTheme(mode: PaletteMode) {
       divider: isDark ? "rgba(148,163,184,0.16)" : "rgba(79,70,229,0.08)",
     },
     shape: {
-      borderRadius: 16,
+      borderRadius: 8,
     },
     typography: {
       fontFamily: [
@@ -108,7 +108,7 @@ export function createAppTheme(mode: PaletteMode) {
       MuiButton: {
         styleOverrides: {
           root: {
-            borderRadius: 12,
+            borderRadius: 8,
             boxShadow: "none",
             "&:hover": { boxShadow: "none" },
           },
@@ -122,7 +122,7 @@ export function createAppTheme(mode: PaletteMode) {
         defaultProps: { elevation: 0 },
         styleOverrides: {
           root: {
-            borderRadius: 20,
+            borderRadius: 10,
             border: `1px solid ${
               isDark ? "rgba(148,163,184,0.12)" : "rgba(79,70,229,0.08)"
             }`,
@@ -137,7 +137,7 @@ export function createAppTheme(mode: PaletteMode) {
         styleOverrides: {
           root: {
             backgroundImage: "none",
-            borderRadius: 20,
+            borderRadius: 10,
           },
           outlined: {
             borderColor: isDark
@@ -151,7 +151,7 @@ export function createAppTheme(mode: PaletteMode) {
         styleOverrides: {
           root: {
             "& .MuiOutlinedInput-root": {
-              borderRadius: 12,
+              borderRadius: 8,
               backgroundColor: isDark
                 ? alpha("#fff", 0.04)
                 : alpha(brand.indigo, 0.03),
@@ -161,22 +161,22 @@ export function createAppTheme(mode: PaletteMode) {
       },
       MuiChip: {
         styleOverrides: {
-          root: { borderRadius: 10, fontWeight: 600 },
+          root: { borderRadius: 8, fontWeight: 600 },
         },
       },
       MuiDialog: {
         styleOverrides: {
-          paper: { borderRadius: 20 },
+          paper: { borderRadius: 12 },
         },
       },
       MuiAlert: {
         styleOverrides: {
-          root: { borderRadius: 14 },
+          root: { borderRadius: 10 },
         },
       },
       MuiTooltip: {
         styleOverrides: {
-          tooltip: { borderRadius: 8 },
+          tooltip: { borderRadius: 6 },
         },
       },
       MuiAppBar: {

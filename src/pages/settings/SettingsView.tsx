@@ -121,7 +121,7 @@ export default function SettingsView() {
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
-          <Card sx={{ borderRadius: 4, height: "100%" }}>
+          <Card sx={{ borderRadius: 2, height: "100%" }}>
             <CardContent sx={{ p: 4 }}>
               <Typography variant="h6" fontWeight={600} mb={2}>
                 WhatsApp Connection
@@ -158,7 +158,7 @@ export default function SettingsView() {
                 mb={3}
                 sx={{
                   border: "1px dashed #ccc",
-                  borderRadius: 3,
+                  borderRadius: 2,
                   backgroundColor: "background.default",
                 }}
               >
@@ -212,7 +212,7 @@ export default function SettingsView() {
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Card sx={{ borderRadius: 4, height: "100%" }}>
+          <Card sx={{ borderRadius: 2, height: "100%" }}>
             <CardContent sx={{ p: 4 }}>
               <Typography variant="h6" fontWeight={600} mb={2}>
                 LLM Settings

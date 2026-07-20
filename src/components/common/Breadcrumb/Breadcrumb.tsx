@@ -22,7 +22,7 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
   return {
     backgroundColor,
     height: 32,
-    borderRadius: 10,
+    borderRadius: 8,
     color: theme.palette.text.secondary,
     fontWeight: 600,
     fontSize: 13,
