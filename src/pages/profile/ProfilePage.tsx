@@ -38,14 +38,12 @@ const ProfileView = () => {
       {/* ================= PROFILE HEADER ================= */}
       <Card
         sx={{
-          mt: 4,
+          mt: 3,
           p: 4,
-          borderRadius: 4,
           background:
             theme.palette.mode === "dark"
-              ? "linear-gradient(135deg, rgba(33,150,243,0.18), rgba(13,17,23,0.9))"
-              : "linear-gradient(135deg, rgba(33,150,243,0.12), #FFFFFF)",
-          borderColor: "divider",
+              ? "linear-gradient(135deg, rgba(79,70,229,0.2), rgba(13,17,23,0.9))"
+              : "linear-gradient(135deg, rgba(79,70,229,0.1), #FFFFFF)",
         }}
       >
         <Stack
@@ -84,18 +82,7 @@ const ProfileView = () => {
       </Card>
 
       {/* ================= DETAIL INFO ================= */}
-      <Card
-        sx={{
-          mt: 4,
-          p: 4,
-          borderRadius: 4,
-          borderColor: "divider",
-          background:
-            theme.palette.mode === "dark"
-              ? "rgba(255,255,255,0.03)"
-              : "#FFFFFF",
-        }}
-      >
+      <Card sx={{ mt: 3, p: 4 }}>
         <Typography variant="h6" fontWeight={700} mb={3}>
           Informasi Akun
         </Typography>

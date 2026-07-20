@@ -23,6 +23,10 @@ import {
 } from "@/hooks/services";
 import { settingsService } from "@/services/settingsService";
 import { useApiErrorHandler } from "@/hooks/api/useApiErrorHandler";
+import PageHeader from "@/components/common/PageHeader";
+import BreadCrumberStyle from "@/components/common/Breadcrumb";
+import { IconMenus } from "@/assets/icons";
+import { ROUTES } from "@/routes/routes";
 
 export default function SettingsView() {
   const [selectedModel, setSelectedModel] = useState("gpt-4o");
@@ -101,9 +105,19 @@ export default function SettingsView() {
 
   return (
     <Box marginBottom={5}>
-      <Typography variant="h4" fontWeight={700} mb={4}>
-        Settings
-      </Typography>
+      <BreadCrumberStyle
+        navigation={[
+          {
+            label: "Settings",
+            link: ROUTES.settings,
+            icon: <IconMenus.settings fontSize="small" />,
+          },
+        ]}
+      />
+      <PageHeader
+        title="Settings"
+        subtitle="WhatsApp connection and model preferences"
+      />
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>

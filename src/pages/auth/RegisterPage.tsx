@@ -11,6 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useRegisterMutation } from "@/hooks/services";
 import type { RegisterPayload } from "@/services/authService";
+import { ROUTES } from "@/routes/routes";
 
 export default function RegisterView() {
   const registerMutation = useRegisterMutation();
@@ -51,47 +52,27 @@ export default function RegisterView() {
         px: 2,
         background:
           theme.palette.mode === "dark"
-            ? "radial-gradient(1200px 600px at 10% -10%, rgba(56,189,248,0.06), transparent 45%), #020617"
-            : "#F5F7FB",
+            ? "radial-gradient(900px 400px at 20% -10%, rgba(79,70,229,0.25), transparent 50%), #0B1020"
+            : "radial-gradient(900px 400px at 20% -10%, rgba(124,58,237,0.16), transparent 50%), radial-gradient(700px 300px at 100% 0%, rgba(56,189,248,0.12), transparent 45%), #F8F7FC",
       })}
     >
       <Container maxWidth="sm">
-        <Card
-          sx={(theme) => ({
-            width: "100%",
-            p: { xs: 3, sm: 4 },
-            borderRadius: 4,
-            border: `1px solid ${
-              theme.palette.mode === "dark"
-                ? "rgba(148,163,184,0.28)"
-                : "rgba(148,163,184,0.18)"
-            }`,
-            boxShadow:
-              theme.palette.mode === "dark"
-                ? "0 18px 40px rgba(15,23,42,0.9)"
-                : "0 18px 40px rgba(15,23,42,0.08)",
-          })}
-        >
-          {/* Header */}
+        <Card sx={{ width: "100%", p: { xs: 3, sm: 4 } }}>
           <Stack spacing={1} mb={3} textAlign="center">
-            <Typography
-              variant="overline"
-              sx={{ letterSpacing: 2, color: "text.secondary" }}
-            >
-              NEURO AI
+            <Typography variant="overline" color="primary">
+              Ginem AI
             </Typography>
             <Typography variant="h4" fontWeight={800}>
               Create account
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Daftar untuk mulai menggunakan Neuro AI.
+              Register to start using the control panel.
             </Typography>
           </Stack>
 
-          {/* Form */}
           <Stack spacing={2}>
             <TextField
-              label="Nama lengkap"
+              label="Full name"
               value={userName}
               size="medium"
               fullWidth
@@ -120,20 +101,14 @@ export default function RegisterView() {
               fullWidth
               size="large"
               variant="contained"
-              sx={{
-                mt: 1,
-                fontWeight: 700,
-                borderRadius: 2,
-                py: 1.2,
-              }}
+              sx={{ mt: 1, py: 1.2 }}
               disabled={submitting}
               onClick={handleSubmit}
             >
-              {submitting ? "Mendaftarkan..." : "Daftar"}
+              {submitting ? "Creating…" : "Create account"}
             </Button>
           </Stack>
 
-          {/* Footer link */}
           <Stack
             direction="row"
             justifyContent="center"
@@ -141,7 +116,7 @@ export default function RegisterView() {
             sx={{ mt: 3 }}
           >
             <Typography variant="body2" color="text.secondary">
-              Sudah punya akun?
+              Already have an account?
             </Typography>
             <Typography
               variant="body2"
@@ -150,9 +125,9 @@ export default function RegisterView() {
                 cursor: "pointer",
                 color: "primary.main",
               }}
-              onClick={() => navigate("/login")}
+              onClick={() => navigate(ROUTES.login)}
             >
-              Login di sini
+              Login here
             </Typography>
           </Stack>
         </Card>

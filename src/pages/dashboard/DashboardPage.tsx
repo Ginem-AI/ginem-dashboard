@@ -11,50 +11,59 @@ import {
 } from "@/hooks/services";
 import type { DashboardStats } from "@/services/dashboardService";
 import BreadCrumberStyle from "@/components/common/Breadcrumb";
+import PageHeader from "@/components/common/PageHeader";
 import { IconMenus } from "@/assets/icons";
 import Alert from "@mui/material/Alert";
 import DeviceHubOutlinedIcon from "@mui/icons-material/DeviceHubOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
 import AccessAlarmIcon from "@mui/icons-material/AccessAlarm";
+import QueryStatsOutlinedIcon from "@mui/icons-material/QueryStatsOutlined";
 import { convertTime } from "@/utils/convertTime";
-import { Chip } from "@mui/material";
+import { Chip, Stack, alpha } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { brand } from "@/styles/theme";
+import { ROUTES } from "@/routes/routes";
 
 const statCards: {
   key: keyof DashboardStats;
   label: string;
+  hint: string;
   icon: React.ElementType;
-  color: string;
-  bgGradient: string;
+  bg: string;
+  fg: string;
 }[] = [
   {
     key: "devices",
     label: "Devices",
+    hint: "Connected hardware",
     icon: DeviceHubOutlinedIcon,
-    color: "#3B82F6",
-    bgGradient: "linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)",
+    bg: `linear-gradient(145deg, ${brand.mint} 0%, ${brand.mintDeep} 100%)`,
+    fg: "#064E3B",
   },
   {
     key: "users",
     label: "Admins",
+    hint: "Team members",
     icon: PeopleOutlinedIcon,
-    color: "#10B981",
-    bgGradient: "linear-gradient(135deg, #10B981 0%, #34D399 100%)",
+    bg: `linear-gradient(145deg, ${brand.coral} 0%, ${brand.coralDeep} 100%)`,
+    fg: "#FFFFFF",
   },
   {
     key: "vectorIndexes",
     label: "Embeddings",
+    hint: "Vector indexes",
     icon: StorageOutlinedIcon,
-    color: "#8B5CF6",
-    bgGradient: "linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)",
+    bg: `linear-gradient(145deg, ${brand.cyan} 0%, ${brand.cyanDeep} 100%)`,
+    fg: "#083344",
   },
   {
     key: "schedulerLogs",
     label: "Schedulers",
+    hint: "Job activity",
     icon: AccessAlarmIcon,
-    color: "#F59E0B",
-    bgGradient: "linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)",
+    bg: `linear-gradient(145deg, ${brand.orange} 0%, #F59E0B 100%)`,
+    fg: "#FFFFFF",
   },
 ];
 
@@ -68,7 +77,6 @@ export default function DashboardView() {
   const stats = statsResult ?? null;
   const error = statsError ? "Failed to load statistics." : null;
 
-  // DataGrid is 0-based; API expects page >= 1
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 10,
     page: 0,
@@ -102,14 +110,13 @@ export default function DashboardView() {
   const columns: GridColDef[] = [
     {
       field: "appLogId",
-      renderHeader: () => <strong>{"ID"}</strong>,
-      editable: true,
+      width: 90,
+      renderHeader: () => <strong>ID</strong>,
     },
     {
       field: "appLogLevel",
       width: 120,
-      renderHeader: () => <strong>{"Level"}</strong>,
-      editable: false,
+      renderHeader: () => <strong>Level</strong>,
       renderCell: (params) => {
         const { label, color } = getLevelChipProps(params.value);
         return (
@@ -120,91 +127,100 @@ export default function DashboardView() {
     {
       field: "appLogMessage",
       flex: 2,
-      renderHeader: () => <strong>{"Message"}</strong>,
-      editable: true,
+      minWidth: 200,
+      renderHeader: () => <strong>Message</strong>,
     },
     {
       field: "createdAt",
       flex: 1,
-      renderHeader: () => <strong>{"Dipesan pada"}</strong>,
-      editable: true,
+      minWidth: 160,
+      renderHeader: () => <strong>Created at</strong>,
       valueFormatter: (item) => convertTime(item.value),
     },
   ];
 
   return (
-    <Box sx={{ pb: 2 }}>
+    <Box>
       <BreadCrumberStyle
         navigation={[
           {
             label: "Dashboard",
-            link: "/",
+            link: ROUTES.home,
             icon: <IconMenus.dashboard fontSize="small" />,
           },
         ]}
       />
 
-      <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
-        Overview
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Statistics across your application
-      </Typography>
+      <PageHeader
+        title="Overview"
+        subtitle="Live stats and recent application logs"
+      />
 
-      {error && (
+      {error ? (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
-      )}
+      ) : null}
 
-      <Grid container spacing={2}>
-        {statCards.map(({ key, label, icon: Icon, bgGradient }) => (
-          <Grid item key={key} xs={12} sm={6} md={4} lg={3}>
+      <Grid container spacing={2.5} sx={{ mb: 3 }}>
+        {statCards.map(({ key, label, hint, icon: Icon, bg, fg }) => (
+          <Grid item key={key} xs={12} sm={6} lg={3}>
             <Card
-              variant="outlined"
               sx={{
                 height: "100%",
-                borderRadius: 2,
+                background: bg,
+                color: fg,
+                border: "none",
+                boxShadow: `0 16px 36px ${alpha("#312E81", 0.12)}`,
+                position: "relative",
                 overflow: "hidden",
-                transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                "&:hover": {
-                  transform: "translateY(-2px)",
-                  boxShadow: 4,
+                "&::after": {
+                  content: '""',
+                  position: "absolute",
+                  width: 140,
+                  height: 140,
+                  borderRadius: "50%",
+                  right: -40,
+                  top: -40,
+                  bgcolor: "rgba(255,255,255,0.18)",
                 },
               }}
             >
-              <CardContent sx={{ p: 2.5 }}>
-                <Box
-                  sx={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 2,
-                    background: bgGradient,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    mb: 1.5,
-                    color: "white",
-                  }}
+              <CardContent sx={{ p: 2.75, position: "relative", zIndex: 1 }}>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="flex-start"
+                  mb={2}
                 >
-                  <Icon sx={{ fontSize: 28 }} />
-                </Box>
+                  <Box
+                    sx={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 2,
+                      bgcolor: "rgba(255,255,255,0.28)",
+                      display: "grid",
+                      placeItems: "center",
+                    }}
+                  >
+                    <Icon sx={{ fontSize: 24 }} />
+                  </Box>
+                  <Typography variant="caption" sx={{ opacity: 0.85, fontWeight: 600 }}>
+                    {hint}
+                  </Typography>
+                </Stack>
                 {statsLoading ? (
                   <>
-                    <Skeleton variant="text" width={80} height={32} />
-                    <Skeleton variant="text" width={40} height={24} />
+                    <Skeleton variant="text" width={80} height={36} />
+                    <Skeleton variant="text" width={60} height={22} />
                   </>
                 ) : (
                   <>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      fontWeight={600}
-                    >
-                      {label}
-                    </Typography>
-                    <Typography variant="h4" fontWeight={800}>
+                    <Typography variant="h4" fontWeight={800} lineHeight={1.1}>
                       {stats?.[key] ?? 0}
+                    </Typography>
+                    <Typography variant="body2" fontWeight={700} sx={{ mt: 0.75, opacity: 0.9 }}>
+                      {label}
                     </Typography>
                   </>
                 )}
@@ -213,27 +229,33 @@ export default function DashboardView() {
           </Grid>
         ))}
       </Grid>
-      <Grid container spacing={2}>
+
+      <Card sx={{ p: { xs: 1.5, md: 2 } }}>
+        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1.5, px: 1 }}>
+          <QueryStatsOutlinedIcon color="primary" fontSize="small" />
+          <Typography fontWeight={700}>Latest application logs</Typography>
+        </Stack>
         <DataGrid
           rows={tableData}
           columns={columns}
-          editMode="row"
           getRowId={(row) => row.appLogId}
-          sx={{
-            backgroundColor: "background.default",
-            p: 2,
-            ml: 2,
-            my: 5,
-          }}
           autoHeight
           loading={logsLoading}
-          pageSizeOptions={[2, 5, 10, 25]}
+          pageSizeOptions={[5, 10, 25]}
           paginationModel={paginationModel}
           onPaginationModelChange={setPaginationModel}
           rowCount={rowCount}
           paginationMode="server"
+          disableRowSelectionOnClick
+          sx={{
+            border: "none",
+            "& .MuiDataGrid-columnHeaders": {
+              bgcolor: alpha(brand.indigo, 0.04),
+              borderRadius: 2,
+            },
+          }}
         />
-      </Grid>
+      </Card>
     </Box>
   );
 }

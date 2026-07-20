@@ -51,47 +51,24 @@ export default function LoginView() {
         px: 2,
         background:
           theme.palette.mode === "dark"
-            ? "radial-gradient(1200px 600px at 10% -10%, rgba(56,189,248,0.06), transparent 45%), #020617"
-            : "#F5F7FB",
+            ? "radial-gradient(900px 400px at 20% -10%, rgba(79,70,229,0.25), transparent 50%), #0B1020"
+            : "radial-gradient(900px 400px at 20% -10%, rgba(124,58,237,0.16), transparent 50%), radial-gradient(700px 300px at 100% 0%, rgba(56,189,248,0.12), transparent 45%), #F8F7FC",
       })}
     >
       <Container maxWidth="sm">
-        <Card
-          sx={(theme) => ({
-            width: "100%",
-            p: { xs: 3, sm: 4 },
-            borderRadius: 4,
-            border: `1px solid ${
-              theme.palette.mode === "dark"
-                ? "rgba(148,163,184,0.28)"
-                : "rgba(148,163,184,0.18)"
-            }`,
-            boxShadow:
-              theme.palette.mode === "dark"
-                ? "0 18px 40px rgba(15,23,42,0.9)"
-                : "0 18px 40px rgba(15,23,42,0.08)",
-          })}
-        >
-          {/* Header */}
+        <Card sx={{ width: "100%", p: { xs: 3, sm: 4 } }}>
           <Stack spacing={1} mb={3} textAlign="center">
-            <Typography
-              variant="overline"
-              sx={{
-                letterSpacing: 2,
-                color: "text.secondary",
-              }}
-            >
-              Log in
+            <Typography variant="overline" color="primary">
+              Ginem AI
             </Typography>
             <Typography variant="h4" fontWeight={800}>
               Welcome back
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Masuk untuk mengakses dashboard.
+              Sign in to access your control panel.
             </Typography>
           </Stack>
 
-          {/* Form */}
           <Stack spacing={2}>
             <TextField
               label="E-mail"
@@ -117,15 +94,11 @@ export default function LoginView() {
               fullWidth
               size="large"
               variant="contained"
-              sx={{
-                mt: 1,
-                fontWeight: 700,
-                borderRadius: 2,
-                py: 1.2,
-              }}
+              sx={{ mt: 1, py: 1.2 }}
               onClick={handleSubmit}
+              disabled={loginMutation.isPending}
             >
-              Login
+              {loginMutation.isPending ? "Signing in…" : "Login"}
             </Button>
           </Stack>
         </Card>

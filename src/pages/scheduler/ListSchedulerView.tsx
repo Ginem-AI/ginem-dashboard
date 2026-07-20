@@ -1,6 +1,7 @@
 import Box from "@mui/material/Box";
 import { useEffect, useState } from "react";
 import { useSchedulerListQuery } from "@/hooks/services";
+import type { SchedulerLogItem } from "@/services/schedulerService";
 import {
   Alert,
   Button,
@@ -251,7 +252,7 @@ export default function ListSchedulerView() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {tableData.map((row) => {
+                  {tableData.map((row: SchedulerLogItem) => {
                     const status = String(row?.status ?? "pending");
                     return (
                       <TableRow
@@ -299,12 +300,14 @@ export default function ListSchedulerView() {
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2" color="text.secondary">
-                            {convertTime(row?.scheduledAt) || "-"}
+                            {row.scheduledAt
+                              ? convertTime(row.scheduledAt)
+                              : "-"}
                           </Typography>
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2" color="text.secondary">
-                            {convertTime(row?.runAt) || "-"}
+                            {row.runAt ? convertTime(row.runAt) : "-"}
                           </Typography>
                         </TableCell>
                         <TableCell>

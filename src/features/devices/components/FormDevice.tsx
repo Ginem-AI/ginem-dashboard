@@ -79,6 +79,13 @@ export default function FormDevice({
   onClose,
   onSubmit,
 }: FormDeviceProps) {
+  const patchForm = (patch: Record<string, string>) => {
+    setForm((prev: DeviceCreateFormState | DeviceEditFormState) => ({
+      ...prev,
+      ...patch,
+    }) as DeviceCreateFormState & DeviceEditFormState);
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
@@ -97,9 +104,7 @@ export default function FormDevice({
             required
             fullWidth
             value={form.deviceName}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, deviceName: e.target.value }))
-            }
+            onChange={(e) => patchForm({ deviceName: e.target.value })}
             placeholder="e.g. Sensor Kebakaran"
           />
           {mode === "create" ? (
@@ -111,10 +116,7 @@ export default function FormDevice({
                 value={form.deviceType}
                 label="Device Type"
                 onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    deviceType: String(e.target.value),
-                  }))
+                  patchForm({ deviceType: String(e.target.value) })
                 }
               >
                 {DEVICE_TYPE_OPTIONS.map((opt) => (
@@ -133,10 +135,7 @@ export default function FormDevice({
                 value={form.deviceStatus}
                 label="Device Status"
                 onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    deviceStatus: String(e.target.value),
-                  }))
+                  patchForm({ deviceStatus: String(e.target.value) })
                 }
               >
                 {DEVICE_STATUS_OPTIONS.map((opt) => (
@@ -155,10 +154,7 @@ export default function FormDevice({
               value={form.deviceFirmwareVersion}
               label="Firmware Version"
               onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  deviceFirmwareVersion: String(e.target.value),
-                }))
+                patchForm({ deviceFirmwareVersion: String(e.target.value) })
               }
             >
               {FIRMWARE_OPTIONS.map((opt) =>
@@ -186,12 +182,7 @@ export default function FormDevice({
             label="Room"
             fullWidth
             value={form.deviceMetadataRoom}
-            onChange={(e) =>
-              setForm((prev) => ({
-                ...prev,
-                deviceMetadataRoom: e.target.value,
-              }))
-            }
+            onChange={(e) => patchForm({ deviceMetadataRoom: e.target.value })}
             placeholder="e.g. bedroom"
           />
           <TextField
@@ -200,10 +191,7 @@ export default function FormDevice({
             fullWidth
             value={form.deviceMetadataVoltage}
             onChange={(e) =>
-              setForm((prev) => ({
-                ...prev,
-                deviceMetadataVoltage: e.target.value,
-              }))
+              patchForm({ deviceMetadataVoltage: e.target.value })
             }
             placeholder="e.g. 220V"
           />
